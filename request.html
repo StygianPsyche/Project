@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Request Form</title>
+
+  <!-- ✅ Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="request.css" />
+</head>
+<body class="bg-light">
+
+  <div class="container py-5">
+    <div class="row">
+      <!-- LEFT SIDE -->
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm p-3">
+          <h5 class="fw-bold text-center mb-3">Request Types</h5>
+          <div class="list-group">
+            <button class="list-group-item list-group-item-action active" id="clearanceBtn">Barangay Clearance</button>
+            <button class="list-group-item list-group-item-action" id="indigencyBtn">Certificate of Indigency</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="col-md-8">
+        <div class="card shadow-sm p-4" id="formContainer">
+          <!-- Default form (Barangay Clearance) -->
+          <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
+          <form id="clearanceForm">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" placeholder="Enter full name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-control" placeholder="Enter age">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" placeholder="Enter address">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const formContainer = document.getElementById('formContainer');
+    const clearanceBtn = document.getElementById('clearanceBtn');
+    const indigencyBtn = document.getElementById('indigencyBtn');
+
+    // Barangay Clearance Form
+    const clearanceFormHTML = `
+      <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
+      <form id="clearanceForm">
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" placeholder="Enter full name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control" placeholder="Enter age">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-control" placeholder="Enter address">
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+      </form>
+    `;
+
+    // Certificate of Indigency Form
+    const indigencyFormHTML = `
+      <h4 class="fw-bold mb-3">Certificate of Indigency Request</h4>
+      <form id="indigencyForm">
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" placeholder="Enter full name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control" placeholder="Enter age">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-control" placeholder="Enter address">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mother's Full Name</label>
+          <input type="text" class="form-control" placeholder="Enter mother's full name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Father's Full Name</label>
+          <input type="text" class="form-control" placeholder="Enter father's full name">
+        </div>
+        <h6 class="fw-bold mt-3">Siblings</h6>
+        ${Array.from({ length: 5 }, (_, i) => `
+          <div class="mb-2">
+            <label class="form-label">Sibling ${i + 1} Full Name</label>
+            <input type="text" class="form-control" placeholder="Enter sibling ${i + 1} full name">
+          </div>`).join('')}
+        <button type="submit" class="btn btn-primary w-100 mt-3">Submit Request</button>
+      </form>
+    `;
+
+    clearanceBtn.addEventListener('click', () => {
+      formContainer.innerHTML = clearanceFormHTML;
+      clearanceBtn.classList.add('active');
+      indigencyBtn.classList.remove('active');
+    });
+
+    indigencyBtn.addEventListener('click', () => {
+      formContainer.innerHTML = indigencyFormHTML;
+      indigencyBtn.classList.add('active');
+      clearanceBtn.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
+<div class="text-center mt-4">
+  <button class="btn btn-outline-primary px-4"
+          onclick="window.location.href='index.html'">
+    ← Back to Home
+  </button>
+</div>
