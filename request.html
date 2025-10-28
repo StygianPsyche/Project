@@ -13,16 +13,18 @@
 
   <div class="container py-5">
     <div class="row">
+<!-- END CODE FOR DROP DOWN -->
       <!-- LEFT SIDE -->
       <div class="col-md-4 mb-4">
-        <div class="card shadow-sm p-3">
-          <h5 class="fw-bold text-center mb-3">Request Types</h5>
-          <div class="list-group">
-            <button class="list-group-item list-group-item-action active" id="clearanceBtn">Barangay Clearance</button>
-            <button class="list-group-item list-group-item-action" id="indigencyBtn">Certificate of Indigency</button>
-          </div>
-        </div>
+        <div class="card shadow-sm p-3 text-center">
+         <h5 class="fw-bold mb-3">Request Types</h5>
+        <select class="form-select" id="requestTypeSelect">
+          <option value="clearance" selected>Barangay Clearance</option>
+          <option value="indigency">Certificate of Indigency</option>
+      </select>
       </div>
+      </div>  
+<!-- END CODE FOR DROP DOWN -->
 
       <!-- RIGHT SIDE -->
       <div class="col-md-8">
@@ -54,9 +56,15 @@
 
   <script>
     const formContainer = document.getElementById('formContainer');
-    const clearanceBtn = document.getElementById('clearanceBtn');
-    const indigencyBtn = document.getElementById('indigencyBtn');
+   const requestTypeSelect = document.getElementById('requestTypeSelect');
 
+requestTypeSelect.addEventListener('change', () => {
+  if(requestTypeSelect.value === 'clearance') {
+    formContainer.innerHTML = clearanceFormHTML;
+  } else if(requestTypeSelect.value === 'indigency') {
+    formContainer.innerHTML = indigencyFormHTML;
+  }
+});
     // Barangay Clearance Form
     const clearanceFormHTML = `
       <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
@@ -111,17 +119,7 @@
       </form>
     `;
 
-    clearanceBtn.addEventListener('click', () => {
-      formContainer.innerHTML = clearanceFormHTML;
-      clearanceBtn.classList.add('active');
-      indigencyBtn.classList.remove('active');
-    });
 
-    indigencyBtn.addEventListener('click', () => {
-      formContainer.innerHTML = indigencyFormHTML;
-      indigencyBtn.classList.add('active');
-      clearanceBtn.classList.remove('active');
-    });
   </script>
 </body>
 </html>
