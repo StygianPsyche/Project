@@ -1,0 +1,158 @@
+.logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f3f6ff;
+  border: 6px solid rgba(11,116,255,0.06);
+  box-shadow: 0 6px 18px rgba(11,116,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.subtitle {
+  font-size: 13px;
+}
+
+.note {
+  font-size: 12px;
+}
+
+@media (max-width: 420px) {
+  .logo {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+/* Request Page*/
+/* =============================
+   Barangay Ugong Kiosk - Request Page
+   ============================= */
+body {
+  background-color: #f9fafc;
+}
+
+.list-group-item {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+  background-color: #e9f0ff;
+}
+
+.list-group-item.active {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+/* Status Page*/
+/* =============================
+   Barangay Ugong Kiosk - Status Page
+   ============================= */
+
+body {
+  background-color: #f8f9fa;
+  font-family: "Poppins", sans-serif;
+}
+
+/* --- Card Styles --- */
+.card {
+  border: none;
+  border-radius: 20px;
+}
+
+/* --- Numpad Layout --- */
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  justify-items: center;
+}
+
+/* --- Numpad Buttons --- */
+.numpad .btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: 2px solid #ffb6c1;
+  background-color: transparent;
+  color: #ffb6c1;
+  transition: all 0.2s ease-in-out;
+}
+
+.numpad .btn:hover {
+  background-color: #ffb6c1;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* --- Special Buttons --- */
+#clearBtn {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
+}
+
+#clearBtn:hover {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+#enterBtn {
+  border-color: #6c63ff;
+  color: #6c63ff;
+}
+
+#enterBtn:hover {
+  background-color: #6c63ff;
+  color: white;
+}
+
+/* --- Info Box --- */
+.info-box {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  background-color: #fafafa;
+  min-height: 150px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* --- Text Input --- */
+#refInput {
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+#refInput:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 768px) {
+  .numpad .btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.3rem;
+  }
+}
+
+
