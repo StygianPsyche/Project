@@ -25,14 +25,14 @@
         <div class="card shadow-sm p-3 text-center">
           <h5 class="fw-bold mb-3">Request Types</h5>
           <select class="form-select" id="requestTypeSelect" aria-label="Select request type">
-            <option value="form1_cert">Issuance of Barangay Certificate (FORM 1)</option>
-            <option value="form1_clear">Barangay Clearance (FORM 1)</option>
-            <option value="form1_bus">Barangay Business Clearance (FORM 1)</option>
-            <option value="form2_cons">Issuance of Construction, Work, Advertisement, Signage, and Events Clearance (FORM 2)</option>
-            <option value="form2_fac">Use of Barangay Facilities, and Properties (FORM 2)</option>
-            <option value="form3_katar">Katarungang Pambarangay (Form 3)</option>
-            <option value="form3_file">Certificate to File Action (Form 3)</option>
-            <option value="form3_bpo">Barangay Protection Order (Form 3)</option>
+            <option value="form1_cert">Issuance of Barangay Certificate</option>
+            <option value="form1_clear">Barangay Clearance</option>
+            <option value="form1_bus">Barangay Business Clearance</option>
+            <option value="form2_cons">Issuance of Construction, Work, Advertisement, Signage, and Events Clearance</option>
+            <option value="form2_fac">Use of Barangay Facilities, and Properties</option>
+            <option value="form3_katar">Katarungang Pambarangay</option>
+            <option value="form3_file">Certificate to File Action</option>
+            <option value="form3_bpo">Barangay Protection Order</option>
           </select>
         </div>
       </div>
@@ -207,7 +207,7 @@
 
     function formHTML_FORM1(purposeLabelText = 'PURPOSE:') {
       return `
-        <h4 class="fw-bold mb-3">FORM 1 Request</h4>
+        
         <form id="activeForm" novalidate>
           ${template_FORM1_COMMON(purposeLabelText)}
           <div class="mt-3">
@@ -220,7 +220,7 @@
 
     function formHTML_FORM2_CONSTRUCTION() {
       return `
-        <h4 class="fw-bold mb-3">Issuance of Construction, Work, Advertisement, Signage, and Events Clearance (Form 2)</h4>
+       
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="date2">DATE</label>
@@ -299,7 +299,7 @@
     function formHTML_FORM2_FACILITIES() {
       // simpler facility usage form (Form 2 variant)
       return `
-        <h4 class="fw-bold mb-3">Use of Barangay Facilities and Properties (Form 2)</h4>
+      
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="dateF">DATE</label>
@@ -328,7 +328,7 @@
 
     function formHTML_FORM3_KATAR() {
       return `
-        <h4 class="fw-bold mb-3">Katarungang Pambarangay (Form 3)</h4>
+       
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="complainantName">Complainant Complete Name</label>
@@ -366,7 +366,7 @@
     function formHTML_FORM3_FILEACTION() {
       // Certificate to File Action (Form 3)
       return `
-        <h4 class="fw-bold mb-3">Certificate to File Action (Form 3)</h4>
+       
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="ctfaName">Complainant Complete Name</label>
@@ -392,7 +392,7 @@
     function formHTML_FORM3_BPO() {
       // Barangay Protection Order
       return `
-        <h4 class="fw-bold mb-3">Barangay Protection Order (Form 3)</h4>
+       
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="bpoName">Requestor Full Name</label>
@@ -416,38 +416,55 @@
     }
 
     // ---------- Render & Init ----------
-    function renderSelectedForm() {
-      const val = requestTypeSelect.value;
-      switch (val) {
-        case 'form1_cert':
-          formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
-          break;
-        case 'form1_clear':
-          formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
-          break;
-        case 'form1_bus':
-          formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
-          break;
-        case 'form2_cons':
-          formContainer.innerHTML = formHTML_FORM2_CONSTRUCTION();
-          break;
-        case 'form2_fac':
-          formContainer.innerHTML = formHTML_FORM2_FACILITIES();
-          break;
-        case 'form3_katar':
-          formContainer.innerHTML = formHTML_FORM3_KATAR();
-          break;
-        case 'form3_file':
-          formContainer.innerHTML = formHTML_FORM3_FILEACTION();
-          break;
-        case 'form3_bpo':
-          formContainer.innerHTML = formHTML_FORM3_BPO();
-          break;
-        default:
-          formContainer.innerHTML = '<div class="p-3">Select a request type.</div>';
-      }
-      initFormBehaviors(); // attach listeners after injecting HTML
-    }
+   function renderSelectedForm() {
+  const val = requestTypeSelect.value;
+  let titleText = '';
+
+  switch (val) {
+    case 'form1_cert':
+      titleText = 'Issuance of Barangay Certificate';
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      break;
+    case 'form1_clear':
+      titleText = 'Barangay Clearance';
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      break;
+    case 'form1_bus':
+      titleText = 'Barangay Business Clearance';
+      formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
+      break;
+    case 'form2_cons':
+      titleText = 'Issuance of Construction, Work, Advertisement, Signage, and Events Clearance';
+      formContainer.innerHTML = formHTML_FORM2_CONSTRUCTION();
+      break;
+    case 'form2_fac':
+      titleText = 'Use of Barangay Facilities and Properties';
+      formContainer.innerHTML = formHTML_FORM2_FACILITIES();
+      break;
+    case 'form3_katar':
+      titleText = 'Katarungang Pambarangay';
+      formContainer.innerHTML = formHTML_FORM3_KATAR();
+      break;
+    case 'form3_file':
+      titleText = 'Certificate to File Action';
+      formContainer.innerHTML = formHTML_FORM3_FILEACTION();
+      break;
+    case 'form3_bpo':
+      titleText = 'Barangay Protection Order';
+      formContainer.innerHTML = formHTML_FORM3_BPO();
+      break;
+    default:
+      formContainer.innerHTML = '<div class="p-3">Select a request type.</div>';
+      return;
+  }
+
+  // Insert the title above the form
+  formContainer.insertAdjacentHTML('afterbegin', `<h3 class="text-center fw-bold mb-3">${titleText}</h3>`);
+
+  // Reinitialize form behaviors
+  initFormBehaviors();
+}
+
 
     // Attach behaviors to form fields (uppercase, numeric constraints, dynamic construction checks, submit handling)
     function initFormBehaviors() {
@@ -629,8 +646,14 @@
           }
         });
 
-        let html = `<p><strong>Reference Number:</strong> ${ref}</p><hr>`;
-        html += `<div class="row">`;
+        // include selected request type in the summary
+const selectedRequestText = requestTypeSelect.options[requestTypeSelect.selectedIndex].text;
+
+let html = `
+  <p><strong>Request Type:</strong> ${selectedRequestText}</p>
+  <p><strong>Reference Number:</strong> ${ref}</p>
+  <hr>
+`;
         for (const [k, v] of Object.entries(entries)) {
           let displayVal = Array.isArray(v) ? v.join(', ') : v;
           if (displayVal === '') displayVal = '<em>(blank)</em>';
