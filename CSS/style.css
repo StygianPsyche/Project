@@ -78,34 +78,49 @@ body {
 /* --- Numpad Layout --- */
 .numpad {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3 columns for number buttons */
   gap: 15px;
   justify-items: center;
 }
 
 /* --- Numpad Buttons --- */
 .numpad .btn {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
+  width: 70px; /* Square button width */
+  height: 70px; /* Square button height */
+  border-radius: 0; /* Square buttons */
   font-size: 1.5rem;
   font-weight: 600;
-  border: 2px solid #ffb6c1;
-  background-color: transparent;
-  color: #ffb6c1;
+  border: 2px solid black; /* Black border */
+  background-color: white; /* White background */
+  color: black; /* Black text */
   transition: all 0.2s ease-in-out;
 }
 
 .numpad .btn:hover {
-  background-color: #ffb6c1;
-  color: white;
+  background-color: #f0f0f0; /* Lighter shade for hover effect */
+  color: black;
   transform: scale(1.05);
 }
 
-/* --- Special Buttons --- */
+/* --- Special Buttons (Enter and Clear) --- */
+#clearBtn, #enterBtn {
+  width: 70px; /* Square button width */
+  height: 70px; /* Square button height */
+  font-size: 1.2rem; /* Adjust font size for readability */
+  background-color: white; /* White background */
+  color: black; /* Black text */
+  border: 2px solid black; /* Black border */
+}
+
+#clearBtn:hover, #enterBtn:hover {
+  background-color: #f0f0f0; /* Lighter shade for hover effect */
+  color: black;
+  transform: scale(1.05);
+}
+
+/* Clear Button Styles */
 #clearBtn {
   border-color: #ff4d4d;
-  color: #ff4d4d;
 }
 
 #clearBtn:hover {
@@ -113,9 +128,9 @@ body {
   color: white;
 }
 
+/* Enter Button Styles */
 #enterBtn {
   border-color: #6c63ff;
-  color: #6c63ff;
 }
 
 #enterBtn:hover {
@@ -152,6 +167,9 @@ body {
     height: 60px;
     font-size: 1.3rem;
   }
+
+  #clearBtn, #enterBtn {
+    width: 60px; /* Adjust button size on smaller screens */
+    height: 60px;
+  }
 }
-
-
