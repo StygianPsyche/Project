@@ -1,162 +1,682 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Request Form</title>
 
-  <!-- ✅ Bootstrap 5.3 -->
+  <!-- Bootstrap 5.3 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="CSS/style.css" />
+  <style>
+    /* small styles for highlighting invalid fields */
+    .is-required-invalid { border-color: #dc3545 !important; box-shadow: 0 0 0 .2rem rgba(220,53,69,.25); }
+    .printing-overlay {
+      position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.45); color:#fff; z-index: 1080; font-size:1.1rem;
+    }
+  </style>
 </head>
-
 <body class="bg-light">
 
   <div class="container py-5">
     <div class="row">
-      <!-- END CODE FOR DROP DOWN -->
       <!-- LEFT SIDE -->
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm p-3 text-center">
           <h5 class="fw-bold mb-3">Request Types</h5>
-          <select class="form-select" id="requestTypeSelect">
-            <option value="clearance" selected>Barangay Clearance</option>
-            <option value="indigency">Certificate of Indigency</option>
+          <select class="form-select" id="requestTypeSelect" aria-label="Select request type">
+            <option value="form1_cert">Issuance of Barangay Certificate (FORM 1)</option>
+            <option value="form1_clear">Barangay Clearance (FORM 1)</option>
+            <option value="form1_bus">Barangay Business Clearance (FORM 1)</option>
+            <option value="form2_cons">Issuance of Construction, Work, Advertisement, Signage, and Events Clearance (FORM 2)</option>
+            <option value="form2_fac">Use of Barangay Facilities, and Properties (FORM 2)</option>
+            <option value="form3_katar">Katarungang Pambarangay (Form 3)</option>
+            <option value="form3_file">Certificate to File Action (Form 3)</option>
+            <option value="form3_bpo">Barangay Protection Order (Form 3)</option>
           </select>
         </div>
       </div>
-      <!-- END CODE FOR DROP DOWN -->
 
       <!-- RIGHT SIDE -->
       <div class="col-md-8">
         <div class="card shadow-sm p-4" id="formContainer">
-          <!-- Default form (Barangay Clearance) -->
-          <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
-          <form id="clearanceForm">
-            <div class="mb-3">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="form-control" placeholder="Enter full name">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Age</label>
-              <input type="number" class="form-control" placeholder="Enter age">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Address</label>
-              <input type="text" class="form-control" placeholder="Enter address">
-            </div>
-            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
-          </form>
+          <!-- content injected here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary px-4" id="backBtn">← Back to Home</button>
+    </div>
+  </div>
+
+  <!-- Confirmation modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm if details are correct</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Please confirm that the details you entered are correct.
+        </div>
+        <div class="modal-footer">
+          <button id="confirmNo" type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+          <button id="confirmYes" type="button" class="btn btn-primary">Yes</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ✅ Bootstrap JS -->
+  <!-- Summary / Print modal -->
+  <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Submission Summary</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="summaryBody">
+          <!-- summary injected -->
+        </div>
+        <div class="modal-footer">
+          <button id="printReceiptBtn" type="button" class="btn btn-success">Print receipt with Reference number</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printing overlay (hidden by default) -->
+  <div id="printingOverlay" class="printing-overlay" style="display:none;">
+    Printing transaction please wait...
+  </div>
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // ---------- Utils ----------
     const formContainer = document.getElementById('formContainer');
     const requestTypeSelect = document.getElementById('requestTypeSelect');
 
-    requestTypeSelect.addEventListener('change', () => {
-      if (requestTypeSelect.value === 'clearance') {
-        formContainer.innerHTML = clearanceFormHTML;
-      } else if (requestTypeSelect.value === 'indigency') {
-        formContainer.innerHTML = indigencyFormHTML;
-        initSiblingAutoAdd(); // Initialize dynamic sibling adding
+    function randRef() {
+      // REF-YYYYMMDDHHMMSS-XXXX
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2,'0');
+      const ts = d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+      const rnd = Math.floor(1000 + Math.random() * 9000);
+      return `REF-${ts}-${rnd}`;
+    }
+
+    function toUpperHandler(e) {
+      // transform caret safe uppercase
+      const start = e.target.selectionStart, end = e.target.selectionEnd;
+      e.target.value = e.target.value.toUpperCase();
+      try { e.target.setSelectionRange(start, end); } catch {}
+    }
+
+    // mark invalid UI
+    function markInvalid(el) {
+      el.classList.add('is-required-invalid');
+    }
+    function unmarkInvalid(el) {
+      el.classList.remove('is-required-invalid');
+    }
+
+    // find first invalid element and scroll/focus
+    function focusFirstInvalid(invalidElements) {
+      if (!invalidElements || invalidElements.length === 0) return;
+      const first = invalidElements[0];
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      first.focus({ preventScroll: true });
+    }
+
+    // ---------- Templates ----------
+    function template_FORM1_COMMON(purposeLabel = 'PURPOSE:') {
+      // shared among various Form 1 variants
+      return `
+        <div class="mb-3">
+          <label class="form-label" for="purpose">${purposeLabel}</label>
+          <input id="purpose" name="purpose" type="text" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="fullName">FULL NAME</label>
+          <input id="fullName" name="fullName" type="text" class="form-control uppercase-required" placeholder="" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="address">ADDRESS</label>
+          <input id="address" name="address" type="text" class="form-control uppercase-required" placeholder="" required>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label" for="date">DATE</label>
+            <input id="date" name="date" type="date" class="form-control" required>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label" for="age">AGE</label>
+            <input id="age" name="age" type="number" min="0" max="150" class="form-control" placeholder="age" required>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label" for="civilStatus">CIVIL STATUS</label>
+            <select id="civilStatus" name="civilStatus" class="form-select" required>
+              <option value="">-- choose --</option>
+              <option>Single</option>
+              <option>Married</option>
+              <option>Divorced</option>
+              <option>Widowed</option>
+              <option>Civil Partnership</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label" for="bday">B-DAY</label>
+            <input id="bday" name="bday" type="date" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">LENGTH OF STAY IN BRGY UGONG</label>
+            <input id="lengthOfStay" name="lengthOfStay" type="text" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label d-block">SEX</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="sex" id="sexMale" value="Male" required>
+            <label class="form-check-label" for="sexMale">Male</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="sex" id="sexFemale" value="Female" required>
+            <label class="form-check-label" for="sexFemale">Female</label>
+          </div>
+        </div>
+
+        <h6 class="fw-bold mt-3">FOR REPRESENTATIVE (OPTIONAL)</h6>
+        <div class="mb-3">
+          <label class="form-label" for="repName">NAME</label>
+          <input id="repName" name="repName" type="text" class="form-control uppercase-optional" placeholder="optional">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="repRel">RELATIONSHIP TO APPLICANT</label>
+          <input id="repRel" name="repRel" type="text" class="form-control uppercase-optional" placeholder="optional">
+        </div>
+      `;
+    }
+
+    function formHTML_FORM1(purposeLabelText = 'PURPOSE:') {
+      return `
+        <h4 class="fw-bold mb-3">FORM 1 Request</h4>
+        <form id="activeForm" novalidate>
+          ${template_FORM1_COMMON(purposeLabelText)}
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function formHTML_FORM2_CONSTRUCTION() {
+      return `
+        <h4 class="fw-bold mb-3">Issuance of Construction, Work, Advertisement, Signage, and Events Clearance (Form 2)</h4>
+        <form id="activeForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="date2">DATE</label>
+            <input id="date2" name="date" type="date" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="ownerName">NAME OF OWNER</label>
+            <input id="ownerName" name="ownerName" type="text" class="form-control uppercase-required" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="ownerAddress">ADDRESS</label>
+            <input id="ownerAddress" name="ownerAddress" type="text" class="form-control uppercase-required" required>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="repName2">NAME OF REPRESENTATIVE</label>
+              <input id="repName2" name="repName2" type="text" class="form-control uppercase-required" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="position">POSITION</label>
+              <input id="position" name="position" type="text" class="form-control uppercase-required" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="contactNum">CONTACT#</label>
+            <input id="contactNum" name="contactNum" type="tel" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="numbers only" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">TYPE OF CONSTRUCTION <small class="text-muted">(select at least one)</small></label>
+            <div id="constructionTypes">
+              <div class="form-check mb-2">
+                <input class="form-check-input cons-check" type="checkbox" id="consNew" name="consType" value="New">
+                <label class="form-check-label" for="consNew">NEW CONSTRUCTION</label>
+                <input id="consNewSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
+              </div>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input cons-check" type="checkbox" id="consRen" name="consType" value="Renovation">
+                <label class="form-check-label" for="consRen">RENOVATION</label>
+                <input id="consRenSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
+              </div>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input cons-check" type="checkbox" id="consDem" name="consType" value="Demolition">
+                <label class="form-check-label" for="consDem">DEMOLITION</label>
+                <input id="consDemSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
+              </div>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input cons-check" type="checkbox" id="consExc" name="consType" value="Excavation">
+                <label class="form-check-label" for="consExc">EXCAVATION</label>
+                <input id="consExcSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
+              </div>
+
+              <div class="form-check mb-2">
+                <input class="form-check-input cons-check" type="checkbox" id="consOther" name="consType" value="Others">
+                <label class="form-check-label" for="consOther">OTHERS</label>
+                <input id="consOtherSpec" class="form-control mt-2 cons-spec" placeholder="Please specify" disabled>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function formHTML_FORM2_FACILITIES() {
+      // simpler facility usage form (Form 2 variant)
+      return `
+        <h4 class="fw-bold mb-3">Use of Barangay Facilities and Properties (Form 2)</h4>
+        <form id="activeForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="dateF">DATE</label>
+            <input id="dateF" name="date" type="date" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="nameOwnerF">NAME OF REQUESTOR</label>
+            <input id="nameOwnerF" name="nameOwnerF" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="addressF">ADDRESS</label>
+            <input id="addressF" name="addressF" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="facilityType">FACILITY / PROPERTY TO USE</label>
+            <input id="facilityType" name="facilityType" type="text" class="form-control" required>
+          </div>
+
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function formHTML_FORM3_KATAR() {
+      return `
+        <h4 class="fw-bold mb-3">Katarungang Pambarangay (Form 3)</h4>
+        <form id="activeForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="complainantName">Complainant Complete Name</label>
+            <input id="complainantName" name="complainantName" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="complainantAddress">Complainant Complete Address</label>
+            <input id="complainantAddress" name="complainantAddress" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="respondentName">Respondent Name</label>
+            <input id="respondentName" name="respondentName" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="respondentAddress">Respondent Complete Address</label>
+            <input id="respondentAddress" name="respondentAddress" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="complaintType">Type of Complaint</label>
+            <input id="complaintType" name="complaintType" type="text" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="complaintBody">The Complaint Body</label>
+            <textarea id="complaintBody" name="complaintBody" rows="4" class="form-control" required></textarea>
+          </div>
+
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function formHTML_FORM3_FILEACTION() {
+      // Certificate to File Action (Form 3)
+      return `
+        <h4 class="fw-bold mb-3">Certificate to File Action (Form 3)</h4>
+        <form id="activeForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="ctfaName">Complainant Complete Name</label>
+            <input id="ctfaName" name="ctfaName" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="ctfaAddress">Complainant Address</label>
+            <input id="ctfaAddress" name="ctfaAddress" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="ctfaReason">Reason / Details</label>
+            <textarea id="ctfaReason" name="ctfaReason" rows="4" class="form-control" required></textarea>
+          </div>
+
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function formHTML_FORM3_BPO() {
+      // Barangay Protection Order
+      return `
+        <h4 class="fw-bold mb-3">Barangay Protection Order (Form 3)</h4>
+        <form id="activeForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="bpoName">Requestor Full Name</label>
+            <input id="bpoName" name="bpoName" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="bpoAddress">Requestor Address</label>
+            <input id="bpoAddress" name="bpoAddress" type="text" class="form-control uppercase-required" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="bpoDetails">Details / Reason</label>
+            <textarea id="bpoDetails" name="bpoDetails" rows="4" class="form-control" required></textarea>
+          </div>
+
+          <div class="mt-3">
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    // ---------- Render & Init ----------
+    function renderSelectedForm() {
+      const val = requestTypeSelect.value;
+      switch (val) {
+        case 'form1_cert':
+          formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+          break;
+        case 'form1_clear':
+          formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+          break;
+        case 'form1_bus':
+          formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
+          break;
+        case 'form2_cons':
+          formContainer.innerHTML = formHTML_FORM2_CONSTRUCTION();
+          break;
+        case 'form2_fac':
+          formContainer.innerHTML = formHTML_FORM2_FACILITIES();
+          break;
+        case 'form3_katar':
+          formContainer.innerHTML = formHTML_FORM3_KATAR();
+          break;
+        case 'form3_file':
+          formContainer.innerHTML = formHTML_FORM3_FILEACTION();
+          break;
+        case 'form3_bpo':
+          formContainer.innerHTML = formHTML_FORM3_BPO();
+          break;
+        default:
+          formContainer.innerHTML = '<div class="p-3">Select a request type.</div>';
       }
-    });
+      initFormBehaviors(); // attach listeners after injecting HTML
+    }
 
-    // Barangay Clearance Form
-    const clearanceFormHTML = `
-  <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
-  <form id="clearanceForm">
-    <div class="mb-3">
-      <label class="form-label">Full Name</label>
-      <input type="text" class="form-control" placeholder="Enter full name">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Age</label>
-      <input type="number" class="form-control" placeholder="Enter age">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Address</label>
-      <input type="text" class="form-control" placeholder="Enter address">
-    </div>
-    <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
-  </form>
-`;
+    // Attach behaviors to form fields (uppercase, numeric constraints, dynamic construction checks, submit handling)
+    function initFormBehaviors() {
+      const activeForm = document.getElementById('activeForm');
+      if (!activeForm) return;
 
-    // Certificate of Indigency Form (initial with one sibling)
-    const indigencyFormHTML = `
-  <h4 class="fw-bold mb-3">Certificate of Indigency Request</h4>
-  <form id="indigencyForm">
-    <div class="mb-3">
-      <label class="form-label">Full Name</label>
-      <input type="text" class="form-control" placeholder="Enter full name">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Age</label>
-      <input type="number" class="form-control" placeholder="Enter age">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Address</label>
-      <input type="text" class="form-control" placeholder="Enter address">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Mother's Full Name</label>
-      <input type="text" class="form-control" placeholder="Enter mother's full name">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Father's Full Name</label>
-      <input type="text" class="form-control" placeholder="Enter father's full name">
-    </div>
-    <h6 class="fw-bold mt-3">Siblings</h6>
-    <div id="siblingsContainer">
-      <div class="mb-2 sibling">
-        <label class="form-label">Sibling 1 Full Name</label>
-        <input type="text" class="form-control sibling-input" placeholder="Enter sibling 1 full name">
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary w-100 mt-3">Submit Request</button>
-  </form>
-`;
+      // uppercase for elements with class uppercase-required or uppercase-optional
+      document.querySelectorAll('.uppercase-required, .uppercase-optional').forEach(inp => {
+        inp.removeEventListener('input', toUpperHandler);
+        inp.addEventListener('input', toUpperHandler);
+      });
 
-    // TODO: auto remove when field is empty except for the 1st sibling 
-    function initSiblingAutoAdd() {
-      const container = document.getElementById('siblingsContainer');
+      // numeric only for contact input: pattern and inputmode exist; also strip letters on input
+      const contact = activeForm.querySelector('input[name="contactNum"]');
+      if (contact) {
+        contact.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+      }
 
-      container.addEventListener('input', (e) => {
-        if (e.target.classList.contains('sibling-input')) {
-          const siblings = container.querySelectorAll('.sibling-input');
-          const lastInput = siblings[siblings.length - 1];
+      // construction checkboxes behavior: enable/disable spec fields and ensure at least one selected
+      const consChecks = activeForm.querySelectorAll('.cons-check');
+      if (consChecks && consChecks.length) {
+        consChecks.forEach(chk => {
+          chk.addEventListener('change', (e) => {
+            const spec = document.getElementById(chk.id + 'Spec') || chk.closest('.form-check')?.querySelector('.cons-spec');
+            if (spec) spec.disabled = !chk.checked;
+            // if unchecked and spec had value, keep but disabled; validation will skip if not required when unchecked
+          });
+        });
+      }
 
-          // If the last sibling input has a value, add a new field
-          if (lastInput.value.trim() !== '') {
-            const newIndex = siblings.length + 1;
-            const div = document.createElement('div');
-            div.classList.add('mb-2', 'sibling');
-            div.innerHTML = `
-          <label class="form-label">Sibling ${newIndex} Full Name</label>
-          <input type="text" class="form-control sibling-input" placeholder="Enter sibling ${newIndex} full name">
-        `;
-            container.appendChild(div);
+      // handle form submit
+      activeForm.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        handleFormSubmit(activeForm);
+      });
+
+      // clean previous invalid highlights
+      activeForm.querySelectorAll('.is-required-invalid').forEach(el => el.classList.remove('is-required-invalid'));
+    }
+
+    // collect values and validate
+    function handleFormSubmit(formEl) {
+      const errorNode = formEl.querySelector('#formError');
+      if (errorNode) errorNode.style.display = 'none';
+
+      // validation: required fields (HTML5 required coverage) + extra rules
+      const elements = Array.from(formEl.elements).filter(el => el.name);
+      const invalids = [];
+
+      // 1) basic required check
+      elements.forEach(el => {
+        unmarkInvalid(el);
+        const required = el.hasAttribute('required');
+        const value = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? (el.value || true) : '') : (el.value ?? '').toString().trim();
+
+        // For groups of radio inputs, only mark if none selected; handle via name grouping
+        if (required) {
+          if ((el.type === 'radio')) {
+            // only check the first radio with this name
+            const radios = formEl.querySelectorAll(`input[name="${el.name}"]`);
+            if (radios.length && !Array.from(radios).some(r => r.checked)) {
+              // push first radio element as invalid marker
+              invalids.push(radios[0]);
+              radios.forEach(r => markInvalid(r));
+            }
+          } else if (el.type === 'checkbox') {
+            // single checkbox required? (not used here)
+            if (!el.checked && required) {
+              invalids.push(el);
+              markInvalid(el);
+            }
+          } else {
+            if (!value) {
+              invalids.push(el);
+              markInvalid(el);
+            } else {
+              // additional pattern checks for numeric contact
+              if (el.name === 'contactNum' && !/^\d+$/.test(value)) {
+                invalids.push(el);
+                markInvalid(el);
+              }
+            }
           }
         }
       });
+
+      // 2) For Form 2 construction: at least one checkbox selected
+      const consChecks = formEl.querySelectorAll('.cons-check');
+      if (consChecks && consChecks.length) {
+        if (![...consChecks].some(c => c.checked)) {
+          // mark the first check area invalid
+          const firstCheck = consChecks[0];
+          invalids.push(firstCheck);
+          markInvalid(firstCheck);
+        } else {
+          // if checked and spec field present and non-empty required? user requested specify boxes present; require spec if checked and not empty?
+          // We'll require spec when the user checked and the spec input exists and is empty.
+          consChecks.forEach(c => {
+            if (c.checked) {
+              const spec = document.getElementById(c.id + 'Spec') || c.closest('.form-check')?.querySelector('.cons-spec');
+              if (spec && spec.value.trim() === '') {
+                // require a brief spec for checked types except if it's the generic "please specify (if applicable)" — but user asked to allow them to write; we'll require if checked and spec placeholder asks to specify
+                // We'll require only for OTHERS specifically or if the placeholder doesn't include "if applicable"
+                if ((spec.placeholder && spec.placeholder.toLowerCase().includes('please specify')) || c.value === 'Others') {
+                  // require spec for Others or if user jumps to checked that needs clarification
+                  invalids.push(spec);
+                  markInvalid(spec);
+                }
+              }
+            }
+          });
+        }
+      }
+
+      // if invalids found
+      if (invalids.length) {
+        if (errorNode) errorNode.style.display = 'block';
+        focusFirstInvalid(invalids);
+        return;
+      }
+
+      // If passes validation: show confirmation modal
+      const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+      confirmModal.show();
+
+      // No handler: close and focus first invalid (user asked No -> direct to field they not answered)
+      const confirmNo = document.getElementById('confirmNo');
+      const confirmYes = document.getElementById('confirmYes');
+
+      // remove old listeners by cloning
+      confirmNo.replaceWith(confirmNo.cloneNode(true));
+      confirmYes.replaceWith(confirmYes.cloneNode(true));
+
+      const newConfirmNo = document.getElementById('confirmNo');
+      const newConfirmYes = document.getElementById('confirmYes');
+
+      newConfirmNo.addEventListener('click', () => {
+        confirmModal.hide();
+        // re-validate quickly to find any missing (there shouldn't be any, but user wants direct to field not answered)
+        const curInvalids = [];
+        Array.from(formEl.elements).forEach(el => {
+          if (el.name && el.hasAttribute('required')) {
+            let val = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? (el.value || true) : '') : (el.value ?? '').toString().trim();
+            if (el.type === 'radio') {
+              const radios = formEl.querySelectorAll(`input[name="${el.name}"]`);
+              if (radios.length && !Array.from(radios).some(r => r.checked)) {
+                curInvalids.push(radios[0]);
+              }
+            } else if (!val) {
+              curInvalids.push(el);
+            }
+          }
+        });
+        if (curInvalids.length) {
+          focusFirstInvalid(curInvalids);
+        }
+      });
+
+      newConfirmYes.addEventListener('click', () => {
+        confirmModal.hide();
+        // show summary modal with data and reference number
+        const ref = randRef();
+        const summaryBody = document.getElementById('summaryBody');
+        // build a simple summary of all named fields
+        const entries = {};
+        Array.from(formEl.elements).forEach(el => {
+          if (!el.name) return;
+          if (el.type === 'checkbox') {
+            // group by name -> multiple values
+            if (!entries[el.name]) entries[el.name] = [];
+            if (el.checked) entries[el.name].push(el.value || 'Yes');
+          } else if (el.type === 'radio') {
+            if (el.checked) entries[el.name] = el.value;
+            else if (!entries[el.name]) entries[el.name] = '';
+          } else {
+            entries[el.name] = el.value ?? '';
+          }
+        });
+
+        let html = `<p><strong>Reference Number:</strong> ${ref}</p><hr>`;
+        html += `<div class="row">`;
+        for (const [k, v] of Object.entries(entries)) {
+          let displayVal = Array.isArray(v) ? v.join(', ') : v;
+          if (displayVal === '') displayVal = '<em>(blank)</em>';
+          html += `<div class="col-md-6 mb-2"><strong>${k}:</strong> ${displayVal}</div>`;
+        }
+        html += `</div>`;
+        summaryBody.innerHTML = html;
+
+        const summaryModal = new bootstrap.Modal(document.getElementById('summaryModal'));
+        summaryModal.show();
+
+        // print button behavior
+        const printBtn = document.getElementById('printReceiptBtn');
+        // remove old listener clones to prevent multiple fires
+        const newPrint = printBtn.cloneNode(true);
+        printBtn.replaceWith(newPrint);
+        newPrint.addEventListener('click', () => {
+          // show printing overlay for at least 3 seconds, then clear form and close modal
+          document.getElementById('printingOverlay').style.display = 'flex';
+          // simulate print
+          setTimeout(() => {
+            document.getElementById('printingOverlay').style.display = 'none';
+            // close summary modal
+            summaryModal.hide();
+            // clear form fields
+            formEl.reset();
+            // clear any uppercase transformations left
+            formEl.querySelectorAll('.is-required-invalid').forEach(el => el.classList.remove('is-required-invalid'));
+            // if some spec inputs were disabled, leave them disabled
+            // show a small success toast or console log
+            console.log('Submission printed. Reference:', ref);
+            // optionally show browser alert
+            // alert('Printed. Reference: ' + ref);
+          }, 3000);
+        });
+      });
     }
 
-    // Initialize default form on page load
-    initSiblingAutoAdd();
+    // ---------- startup ----------
+    requestTypeSelect.addEventListener('change', renderSelectedForm);
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // initial render
+    renderSelectedForm();
   </script>
-
 </body>
-
 </html>
-<div class="text-center mt-4">
-  <button class="btn btn-outline-primary px-4" onclick="window.location.href='index.html'">
-    ← Back to Home
-  </button>
-</div>
