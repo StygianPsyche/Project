@@ -10,33 +10,32 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
+
+  <style>
+    /* Hide the increment and decrement buttons for number input */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* For Firefox */
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
 </head>
 <body class="bg-light">
 
   <div class="container py-5">
-    <div class="row justify-content-center align-items-start g-4">
+    <div class="row justify-content-center align-items-center g-4">
 
-      <!-- LEFT SIDE - NUMPAD -->
+      <!-- LEFT SIDE - REFERENCE NUMBER INPUT -->
       <div class="col-md-4">
         <div class="card shadow-sm p-4 text-center">
-          <h5 class="fw-bold mb-3">Numpad</h5>
-          <div class="numpad d-grid">
-            <button class="btn btn-secondary num-btn">1</button>
-            <button class="btn btn-secondary num-btn">2</button>
-            <button class="btn btn-secondary num-btn">3</button>
-
-            <button class="btn btn-secondary num-btn">4</button>
-            <button class="btn btn-secondary num-btn">5</button>
-            <button class="btn btn-secondary num-btn">6</button>
-
-            <button class="btn btn-secondary num-btn">7</button>
-            <button class="btn btn-secondary num-btn">8</button>
-            <button class="btn btn-secondary num-btn">9</button>
-
-            <button class="btn btn-danger" id="clearBtn">Clr</button>
-            <button class="btn btn-secondary num-btn">0</button>
-            <button class="btn btn-success" id="enterBtn">Entr</button>
-          </div>
+          <h5 class="fw-bold mb-3">Enter Reference Number</h5>
+          <!-- Reference number input field (only numbers allowed) -->
+          <input type="number" id="refInput" class="form-control mb-3 text-center fs-5" placeholder="Enter Reference Number" min="1">
         </div>
       </div>
 
@@ -45,15 +44,16 @@
         <div class="card shadow-sm p-4">
           <h4 class="fw-bold mb-3 text-center">Check Request Status</h4>
 
-          <label class="form-label fw-semibold">Reference No.</label>
-          <input type="text" id="refInput" class="form-control mb-3 text-center fs-5" placeholder="Enter Reference Number" readonly>
-
           <div id="infoBox" class="info-box p-3 text-muted">
-            <p>Use the numpad to input your reference number.</p>
+            <p>Enter your reference number above and press Enter to check the status.</p>
           </div>
         </div>
       </div>
 
+    </div>
+    <!-- Back to Home Button centered -->
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary px-4" onclick="window.location.href='index.html'">← Back to Home</button>
     </div>
   </div>
 
@@ -63,46 +63,59 @@
   <script>
     const refInput = document.getElementById("refInput");
     const infoBox = document.getElementById("infoBox");
-    const numButtons = document.querySelectorAll(".num-btn");
-    const clearBtn = document.getElementById("clearBtn");
-    const enterBtn = document.getElementById("enterBtn");
 
-    // Add numbers
-    numButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        refInput.value += btn.textContent;
-      });
-    });
+    // Listen for Enter key press to check the status
+    refInput.addEventListener("keydown", (event) => {
+      console.log("Key pressed: ", event.key); // Debugging step
+      if (event.key === "Enter") { // Check if Enter key is pressed
+        const ref = refInput.value.trim();
+        let statusMessage = "";
 
-    // Clear input
-    clearBtn.addEventListener("click", () => {
-      refInput.value = "";
-      infoBox.innerHTML = "<p>Use the numpad to input your reference number.</p>";
-    });
+        // Define the responses based on reference number
+        switch(ref) {
+          case "1":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: On Queue</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "2":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Processing</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "3":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Payment Pending</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "4":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Ready to Pickup</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "5":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Released</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          default:
+            statusMessage = `<p class='text-warning'>No record found for Reference No. ${ref}.</p>`;
+        }
 
-    // Simulate checking status
-    enterBtn.addEventListener("click", () => {
-      const ref = refInput.value.trim();
-      if (ref === "") {
-        infoBox.innerHTML = "<p class='text-danger'>Please enter a reference number.</p>";
-      } else if (ref === "12345") {
-        infoBox.innerHTML = `
-          <h6 class="fw-bold text-success">Request Found</h6>
-          <p><strong>Type:</strong> Barangay Clearance</p>
-          <p><strong>Status:</strong> Approved</p>
-          <p><strong>Date Released:</strong> October 10, 2025</p>
-        `;
-      } else {
-        infoBox.innerHTML = "<p class='text-warning'>No record found for Reference No. " + ref + ".</p>";
+        // Update the infoBox with the status message
+        infoBox.innerHTML = statusMessage;
       }
     });
   </script>
 </body>
 </html>
-
-<div class="text-center mt-4">
-  <button class="btn btn-outline-primary px-4"
-          onclick="window.location.href='index.html'">
-    ← Back to Home
-  </button>
-</div>
