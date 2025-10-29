@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,22 +10,23 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="CSS/style.css" />
 </head>
+
 <body class="bg-light">
 
   <div class="container py-5">
     <div class="row">
-<!-- END CODE FOR DROP DOWN -->
+      <!-- END CODE FOR DROP DOWN -->
       <!-- LEFT SIDE -->
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm p-3 text-center">
-         <h5 class="fw-bold mb-3">Request Types</h5>
-        <select class="form-select" id="requestTypeSelect">
-          <option value="clearance" selected>Barangay Clearance</option>
-          <option value="indigency">Certificate of Indigency</option>
-      </select>
+          <h5 class="fw-bold mb-3">Request Types</h5>
+          <select class="form-select" id="requestTypeSelect">
+            <option value="clearance" selected>Barangay Clearance</option>
+            <option value="indigency">Certificate of Indigency</option>
+          </select>
+        </div>
       </div>
-      </div>  
-<!-- END CODE FOR DROP DOWN -->
+      <!-- END CODE FOR DROP DOWN -->
 
       <!-- RIGHT SIDE -->
       <div class="col-md-8">
@@ -56,76 +58,104 @@
 
   <script>
     const formContainer = document.getElementById('formContainer');
-   const requestTypeSelect = document.getElementById('requestTypeSelect');
+    const requestTypeSelect = document.getElementById('requestTypeSelect');
 
-requestTypeSelect.addEventListener('change', () => {
-  if(requestTypeSelect.value === 'clearance') {
-    formContainer.innerHTML = clearanceFormHTML;
-  } else if(requestTypeSelect.value === 'indigency') {
-    formContainer.innerHTML = indigencyFormHTML;
-  }
-});
+    requestTypeSelect.addEventListener('change', () => {
+      if (requestTypeSelect.value === 'clearance') {
+        formContainer.innerHTML = clearanceFormHTML;
+      } else if (requestTypeSelect.value === 'indigency') {
+        formContainer.innerHTML = indigencyFormHTML;
+        initSiblingAutoAdd(); // Initialize dynamic sibling adding
+      }
+    });
+
     // Barangay Clearance Form
     const clearanceFormHTML = `
-      <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
-      <form id="clearanceForm">
-        <div class="mb-3">
-          <label class="form-label">Full Name</label>
-          <input type="text" class="form-control" placeholder="Enter full name">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Age</label>
-          <input type="number" class="form-control" placeholder="Enter age">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Address</label>
-          <input type="text" class="form-control" placeholder="Enter address">
-        </div>
-        <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
-      </form>
-    `;
-      // TODO: make the siblings auto increment when field is not blank 
-    // Certificate of Indigency Form
+  <h4 class="fw-bold mb-3">Barangay Clearance Request</h4>
+  <form id="clearanceForm">
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-control" placeholder="Enter full name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Age</label>
+      <input type="number" class="form-control" placeholder="Enter age">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Address</label>
+      <input type="text" class="form-control" placeholder="Enter address">
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
+  </form>
+`;
+
+    // Certificate of Indigency Form (initial with one sibling)
     const indigencyFormHTML = `
-      <h4 class="fw-bold mb-3">Certificate of Indigency Request</h4>
-      <form id="indigencyForm">
-        <div class="mb-3">
-          <label class="form-label">Full Name</label>
-          <input type="text" class="form-control" placeholder="Enter full name">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Age</label>
-          <input type="number" class="form-control" placeholder="Enter age">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Address</label>
-          <input type="text" class="form-control" placeholder="Enter address">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Mother's Full Name</label>
-          <input type="text" class="form-control" placeholder="Enter mother's full name">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Father's Full Name</label>
-          <input type="text" class="form-control" placeholder="Enter father's full name">
-        </div>
-        <h6 class="fw-bold mt-3">Siblings</h6>
-        ${Array.from({ length: 5 }, (_, i) => `
-          <div class="mb-2">
-            <label class="form-label">Sibling ${i + 1} Full Name</label>
-            <input type="text" class="form-control" placeholder="Enter sibling ${i + 1} full name">
-          </div>`).join('')}
-        <button type="submit" class="btn btn-primary w-100 mt-3">Submit Request</button>
-      </form>
-    `;
+  <h4 class="fw-bold mb-3">Certificate of Indigency Request</h4>
+  <form id="indigencyForm">
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-control" placeholder="Enter full name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Age</label>
+      <input type="number" class="form-control" placeholder="Enter age">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Address</label>
+      <input type="text" class="form-control" placeholder="Enter address">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Mother's Full Name</label>
+      <input type="text" class="form-control" placeholder="Enter mother's full name">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Father's Full Name</label>
+      <input type="text" class="form-control" placeholder="Enter father's full name">
+    </div>
+    <h6 class="fw-bold mt-3">Siblings</h6>
+    <div id="siblingsContainer">
+      <div class="mb-2 sibling">
+        <label class="form-label">Sibling 1 Full Name</label>
+        <input type="text" class="form-control sibling-input" placeholder="Enter sibling 1 full name">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mt-3">Submit Request</button>
+  </form>
+`;
 
+    function initSiblingAutoAdd() {
+      const container = document.getElementById('siblingsContainer');
 
+      container.addEventListener('input', (e) => {
+        if (e.target.classList.contains('sibling-input')) {
+          const siblings = container.querySelectorAll('.sibling-input');
+          const lastInput = siblings[siblings.length - 1];
+
+          // If the last sibling input has a value, add a new field
+          if (lastInput.value.trim() !== '') {
+            const newIndex = siblings.length + 1;
+            const div = document.createElement('div');
+            div.classList.add('mb-2', 'sibling');
+            div.innerHTML = `
+          <label class="form-label">Sibling ${newIndex} Full Name</label>
+          <input type="text" class="form-control sibling-input" placeholder="Enter sibling ${newIndex} full name">
+        `;
+            container.appendChild(div);
+          }
+        }
+      });
+    }
+
+    // Initialize default form on page load
+    initSiblingAutoAdd();
   </script>
+
 </body>
+
 </html>
 <div class="text-center mt-4">
-  <button class="btn btn-outline-primary px-4"
-          onclick="window.location.href='index.html'">
+  <button class="btn btn-outline-primary px-4" onclick="window.location.href='index.html'">
     ← Back to Home
   </button>
 </div>
