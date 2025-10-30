@@ -1,0 +1,65 @@
+* {
+    margin: 0;
+    border: 0;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.display {
+    height: 200px;
+    width: 90%;
+    margin: 15px;
+    background-color: rgb(196, 193, 193);
+    border-radius: 5px;
+    font-size: 17px;
+    box-shadow: 0 0 20px 2px black;
+    outline: none;
+    caret-color: darkred;
+    display: flex;
+    flex-direction:column;/* to made sure typing on the dislpay starts from the upper left corner*/
+    overflow: scroll;/* to add scroll effect to see the text written outside display bounderies */
+}
+.keyboard {
+    height: 330px;
+    width: 65%;
+    background-color: rgb(139, 137, 137);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin: 10px;
+    border-radius: 10px;
+}
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    font-size: 20px;
+    font-weight: 700;
+}
+.spacebar {
+    width: 500px;
+    height: 30px;
+    background-color: rgb(107, 107, 107);
+    border-radius: 6px;
+}
+.last {
+    width: 560px;
+    margin: 0 auto;
+}
+.key {
+    padding: 10px;
+    /* background-color: blueviolet; */
+    border-radius: 5px;
+}
+.key:active {/* :active = means when the element is clicked */
+    background-color: white;
+}
+.spacebar:active {/* :active = means when the element is clicked */
+    background-color: white;
+}
+.active {
+    background-color: white;
+}
