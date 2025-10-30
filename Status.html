@@ -10,20 +10,8 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
+  <link rel="stylesheet" href="CSS/keyboard.css" />
 
-  <style>
-    /* Hide the increment and decrement buttons for number input */
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    /* For Firefox */
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-  </style>
 </head>
 <body class="bg-light">
 
@@ -57,17 +45,45 @@
     </div>
   </div>
 
+  <!-- On-Screen Keyboard -->
+  <div id="keyboard">
+    <div id="voiceToggle">
+      <label for="voice-command">Voice Command</label>
+      <input type="checkbox" id="voice-command" class="voice-btn">
+    </div>
+    <div id="keyboardLayout">
+      <button class="keyboard-button" data-key="1">1</button>
+      <button class="keyboard-button" data-key="2">2</button>
+      <button class="keyboard-button" data-key="3">3</button>
+      <button class="keyboard-button" data-key="4">4</button>
+      <button class="keyboard-button" data-key="5">5</button>
+      <button class="keyboard-button" data-key="6">6</button>
+      <button class="keyboard-button" data-key="7">7</button>
+      <button class="keyboard-button" data-key="8">8</button>
+      <button class="keyboard-button" data-key="9">9</button>
+      <button class="keyboard-button" data-key="0">0</button>
+      <button class="keyboard-button" data-key="clear">Clr</button>
+      <button class="keyboard-button" data-key="enter">Entr</button>
+    </div>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
     const refInput = document.getElementById("refInput");
     const infoBox = document.getElementById("infoBox");
+    const keyboard = document.getElementById("keyboard");
+    const voicecommandToggle = document.getElementById("voice-command");
 
-    // Listen for Enter key press to check the status
+    // Show on-screen keyboard when text box is clicked
+    refInput.addEventListener("focus", () => {
+      keyboard.style.display = "block";
+    });
+
+    // Hide the keyboard when Enter is pressed
     refInput.addEventListener("keydown", (event) => {
-      console.log("Key pressed: ", event.key); // Debugging step
-      if (event.key === "Enter") { // Check if Enter key is pressed
+      if (event.key === "Enter") {
         const ref = refInput.value.trim();
         let statusMessage = "";
 
@@ -114,6 +130,23 @@
 
         // Update the infoBox with the status message
         infoBox.innerHTML = statusMessage;
+
+        // Hide the keyboard
+        keyboard.style.display = "none";
+      }
+    });
+
+    // Handle keyboard button clicks
+    document.getElementById("keyboardLayout").addEventListener("click", (e) => {
+      const key = e.target.dataset.key;
+      if (key) {
+        if (key === "clear") {
+          refInput.value = "";
+        } else if (key === "enter") {
+          refInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+        } else {
+          refInput.value += key;
+        }
       }
     });
   </script>
