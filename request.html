@@ -59,6 +59,21 @@
     .keyboard button:focus {
       outline: none;
     }
+
+    /* Styles for the microphone button */
+    .mic-btn {
+      background-color: #f5f5f5;
+      font-size: 20px;
+      color: #666;
+      cursor: pointer;
+      border-radius: 50%;
+      padding: 10px;
+    }
+
+    .mic-btn:hover {
+      background-color: #ddd;
+    }
+
   </style>
 </head>
 
@@ -99,46 +114,50 @@
 
   <!-- On-screen keyboard -->
   <div class="keyboard" id="keyboard">
-    <div>
-      <button class="key" data-key="1">1</button>
-      <button class="key" data-key="2">2</button>
-      <button class="key" data-key="3">3</button>
-      <button class="key" data-key="4">4</button>
-      <button class="key" data-key="5">5</button>
-      <button class="key" data-key="6">6</button>
-      <button class="key" data-key="7">7</button>
-      <button class="key" data-key="8">8</button>
-      <button class="key" data-key="9">9</button>
-      <button class="key" data-key="0">0</button>
-      <button class="key" data-key="A">A</button>
-      <button class="key" data-key="B">B</button>
-      <button class="key" data-key="C">C</button>
-      <button class="key" data-key="D">D</button>
-      <button class="key" data-key="E">E</button>
-      <button class="key" data-key="F">F</button>
-      <button class="key" data-key="G">G</button>
-      <button class="key" data-key="H">H</button>
-      <button class="key" data-key="I">I</button>
-      <button class="key" data-key="J">J</button>
-      <button class="key" data-key="K">K</button>
-      <button class="key" data-key="L">L</button>
-      <button class="key" data-key="M">M</button>
-      <button class="key" data-key="N">N</button>
-      <button class="key" data-key="O">O</button>
-      <button class="key" data-key="P">P</button>
-      <button class="key" data-key="Q">Q</button>
-      <button class="key" data-key="R">R</button>
-      <button class="key" data-key="S">S</button>
-      <button class="key" data-key="T">T</button>
-      <button class="key" data-key="U">U</button>
-      <button class="key" data-key="V">V</button>
-      <button class="key" data-key="W">W</button>
-      <button class="key" data-key="X">X</button>
-      <button class="key" data-key="Y">Y</button>
-      <button class="key" data-key="Z">Z</button>
-      <button class="key" data-key="Space">Space</button>
-      <button class="key" data-key="Delete">Del</button>
-    </div>
+    <!-- Microphone Button -->
+    <button class="mic-btn" id="micBtn">
+      🎤
+    </button>
+
+    <button class="key" data-key="1">1</button>
+    <button class="key" data-key="2">2</button>
+    <button class="key" data-key="3">3</button>
+    <button class="key" data-key="4">4</button>
+    <button class="key" data-key="5">5</button>
+    <button class="key" data-key="6">6</button>
+    <button class="key" data-key="7">7</button>
+    <button class="key" data-key="8">8</button>
+    <button class="key" data-key="9">9</button>
+    <button class="key" data-key="0">0</button>
+
+    <button class="key" data-key="A">A</button>
+    <button class="key" data-key="B">B</button>
+    <button class="key" data-key="C">C</button>
+    <button class="key" data-key="D">D</button>
+    <button class="key" data-key="E">E</button>
+    <button class="key" data-key="F">F</button>
+    <button class="key" data-key="G">G</button>
+    <button class="key" data-key="H">H</button>
+    <button class="key" data-key="I">I</button>
+    <button class="key" data-key="J">J</button>
+    <button class="key" data-key="K">K</button>
+    <button class="key" data-key="L">L</button>
+    <button class="key" data-key="M">M</button>
+    <button class="key" data-key="N">N</button>
+    <button class="key" data-key="O">O</button>
+    <button class="key" data-key="P">P</button>
+    <button class="key" data-key="Q">Q</button>
+    <button class="key" data-key="R">R</button>
+    <button class="key" data-key="S">S</button>
+    <button class="key" data-key="T">T</button>
+    <button class="key" data-key="U">U</button>
+    <button class="key" data-key="V">V</button>
+    <button class="key" data-key="W">W</button>
+    <button class="key" data-key="X">X</button>
+    <button class="key" data-key="Y">Y</button>
+    <button class="key" data-key="Z">Z</button>
+    <button class="key" data-key="Space">Space</button>
+    <button class="key" data-key="Delete">Del</button>
   </div>
 
   <!-- Confirmation modal -->
