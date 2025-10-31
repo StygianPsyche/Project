@@ -12,6 +12,30 @@
   <link rel="stylesheet" href="CSS/style.css" />
   <link rel="stylesheet" href="CSS/keyboard.css" />
 
+  <style>
+    /* simple mic button style (if not in your keyboard.css) */
+    .mic-btn {
+      background-color: #f5f5f5;
+      font-size: 20px;
+      color: #333;
+      cursor: pointer;
+      border-radius: 50%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .mic-btn.active {
+      background-color: #dcfce7;
+      border-color: #2f855a;
+      box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.12);
+    }
+    #keyboard { display: none; } /* keep hidden until needed */
+    #keyboardLayout { display:flex; flex-wrap:wrap; gap:6px; }
+    .keyboard-button { padding:10px 12px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -46,12 +70,13 @@
   </div>
 
   <!-- On-Screen Keyboard -->
-  <div id="keyboard">
-    <div id="voiceToggle">
-      <label for="voice-command">Voice Command</label>
-      <input type="checkbox" id="voice-command" class="voice-btn">
+  <div id="keyboard" class="p-3">
+    <!-- Mic button replacing the checkbox -->
+    <div id="voiceToggle" class="mb-2 text-center">
+      <button class="mic-btn" id="micBtn" title="Toggle voice command">🎤</button>
     </div>
-    <div id="keyboardLayout">
+
+    <div id="keyboardLayout" class="text-center">
       <button class="keyboard-button" data-key="1">1</button>
       <button class="keyboard-button" data-key="2">2</button>
       <button class="keyboard-button" data-key="3">3</button>
@@ -74,17 +99,17 @@
     const refInput = document.getElementById("refInput");
     const infoBox = document.getElementById("infoBox");
     const keyboard = document.getElementById("keyboard");
-    const voicecommandToggle = document.getElementById("voice-command");
+    const micBtn = document.getElementById("micBtn");
 
     // Show on-screen keyboard when text box is clicked
     refInput.addEventListener("focus", () => {
       keyboard.style.display = "block";
     });
 
-    // Hide the keyboard when Enter is pressed
+    // Hide the keyboard when Enter is pressed (and show status)
     refInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        const ref = refInput.value.trim();
+        const ref = (refInput.value ?? "").trim();
         let statusMessage = "";
 
         // Define the responses based on reference number
@@ -143,10 +168,38 @@
         if (key === "clear") {
           refInput.value = "";
         } else if (key === "enter") {
-          refInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          // trigger Enter behavior
+          refInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         } else {
-          refInput.value += key;
+          // append numeric key
+          // ensure not to break min attribute: simply append as string
+          refInput.value = (refInput.value ?? "") + key;
+          refInput.focus(); // keep focus so keyboard remains visible
         }
+      }
+    });
+
+    // Mic button toggling (visual only)
+    micBtn.addEventListener('click', () => {
+      micBtn.classList.toggle('active');
+
+      if (micBtn.classList.contains('active')) {
+        // placeholder: start listening
+        micBtn.setAttribute('title', 'Listening... click to stop');
+        // optionally provide visual feedback in infoBox
+        infoBox.innerHTML = `<p class="text-success">Voice command enabled (placeholder). Speak now...</p>`;
+        // Here you could start Web Speech API recognition if desired.
+      } else {
+        // stop listening
+        micBtn.setAttribute('title', 'Toggle voice command');
+        infoBox.innerHTML = `<p class="text-muted">Voice command disabled.</p>`;
+      }
+    });
+
+    // Optional: hide keyboard when clicking outside input and keyboard
+    document.addEventListener('mousedown', (e) => {
+      if (!keyboard.contains(e.target) && e.target !== refInput) {
+        keyboard.style.display = 'none';
       }
     });
   </script>
