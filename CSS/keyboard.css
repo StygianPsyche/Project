@@ -1,0 +1,26 @@
+/* keyboard layout */
+.kbd-row {
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin:6px 0;
+  flex-wrap:nowrap;
+}
+.kbd-row .key {
+  min-width:40px;
+  padding:8px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  background:#fff;
+  cursor:pointer;
+  font-size:16px;
+}
+.kbd-row .key.wide {
+  min-width:220px; /* spacebar wider */
+  text-align:center;
+}
+.kbd-row-bottom { align-items:center; gap:10px; }
+
+.keyboard { display:none; position:fixed; left:50%; transform:translateX(-50%); bottom:12px; background:#fff; padding:10px 12px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.12); z-index:1000; max-width:96%; }
+.mic-btn { padding:8px 12px; border-radius:8px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer; font-size:18px; }
+.mic-btn.active { background:#dcfce7; box-shadow:0 0 0 4px rgba(72,187,120,0.12); }

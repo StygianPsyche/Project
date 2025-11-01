@@ -382,6 +382,8 @@ function renderSelectedForm() {
   initFormBehaviors();
 }
 
+
+
 // ---------- Auto-age calculation from birthday ----------
 function computeAgeFromDOB(dobString) {
   if (!dobString) return '';
@@ -616,6 +618,19 @@ function initFormBehaviors() {
     button.removeEventListener('click', _keyboardKeyHandler);
     button.addEventListener('click', _keyboardKeyHandler);
   });
+// mic button toggle (visual only - you can hook real recognition later)
+const mic = document.getElementById('micBtn');
+if (mic) {
+  mic.removeEventListener('click', mic._handler);
+  mic._handler = function () {
+    mic.classList.toggle('active');
+    // optional UI feedback: keep keyboard visible when mic active
+    keyboard.style.display = 'block';
+    // you can add actual speech-to-text start/stop here later
+  };
+  mic.addEventListener('click', mic._handler);
+}
+
 
   // numeric-only + auto-format for PH mobile number (10 digits, displayed as "xxx xxx xxxx")
   const contact = activeForm.querySelector('input[name="contactNum"]');
