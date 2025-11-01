@@ -4,29 +4,34 @@ const requestTypeSelect = document.getElementById('requestTypeSelect');
 const keyboard = document.getElementById('keyboard');
 let currentInput = null;
 
+// --- Helper utilities (kept from your original) ---
 function randRef() {
-    // REF-YYYYMMDDHHMMSS-XXXX
-    const d = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const ts = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-    const rnd = Math.floor(1000 + Math.random() * 9000);
-    return `REF-${ts}-${rnd}`;
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const ts = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  const rnd = Math.floor(1000 + Math.random() * 9000);
+  return `REF-${ts}-${rnd}`;
 }
 
 function toUpperHandler(e) {
-    // transform caret safe uppercase
-    const start = e.target.selectionStart, end = e.target.selectionEnd;
-    e.target.value = e.target.value.toUpperCase();
-    try { e.target.setSelectionRange(start, end); } catch { }
+  // transform caret-safe uppercase
+  const start = e.target.selectionStart, end = e.target.selectionEnd;
+  e.target.value = e.target.value.toUpperCase();
+  try { e.target.setSelectionRange(start, end); } catch { }
 }
 
 // mark invalid UI
-function markInvalid(el) {
-    el.classList.add('is-required-invalid');
+function markInvalid(el) { el.classList.add('is-required-invalid'); }
+function unmarkInvalid(el) { el.classList.remove('is-required-invalid'); }
+
+function focusFirstInvalid(invalidElements) {
+  if (!invalidElements || invalidElements.length === 0) return;
+  const first = invalidElements[0];
+  first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  try { first.focus({ preventScroll: true }); } catch { first.focus(); }
 }
-function unmarkInvalid(el) {
-    el.classList.remove('is-required-invalid');
-}
+
+
 
 // find first invalid element and scroll/focus
 function focusFirstInvalid(invalidElements) {
@@ -322,240 +327,333 @@ function formHTML_FORM3_BPO() {
 
 // ---------- Render & Init ----------
 function renderSelectedForm() {
-    const val = requestTypeSelect.value;
-    let titleText = '';
+  const val = requestTypeSelect.value;
+  let titleText = '';
 
-    switch (val) {
-        case 'form1_cert':
-            titleText = 'Issuance of Barangay Certificate';
-            formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
-            break;
-        case 'form1_clear':
-            titleText = 'Barangay Clearance';
-            formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
-            break;
-        case 'form1_bus':
-            titleText = 'Barangay Business Clearance';
-            formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
-            break;
-        case 'form2_cons':
-            titleText = 'Issuance of Construction, Work, Advertisement, Signage, and Events Clearance';
-            formContainer.innerHTML = formHTML_FORM2_CONSTRUCTION();
-            break;
-        case 'form2_fac':
-            titleText = 'Use of Barangay Facilities and Properties';
-            formContainer.innerHTML = formHTML_FORM2_FACILITIES();
-            break;
-        case 'form3_katar':
-            titleText = 'Katarungang Pambarangay';
-            formContainer.innerHTML = formHTML_FORM3_KATAR();
-            break;
-        case 'form3_file':
-            titleText = 'Certificate to File Action';
-            formContainer.innerHTML = formHTML_FORM3_FILEACTION();
-            break;
-        case 'form3_bpo':
-            titleText = 'Barangay Protection Order';
-            formContainer.innerHTML = formHTML_FORM3_BPO();
-            break;
-        default:
-            formContainer.innerHTML = '<div class="p-3">Select a request type.</div>';
-            return;
-    }
+  switch (val) {
+    case 'form1_cert':
+      titleText = 'Issuance of Barangay Certificate';
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      break;
+    case 'form1_clear':
+      titleText = 'Barangay Clearance';
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      break;
+    case 'form1_bus':
+      titleText = 'Barangay Business Clearance';
+      formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
+      break;
+    case 'form2_cons':
+      titleText = 'Issuance of Construction, Work, Advertisement, Signage, and Events Clearance';
+      formContainer.innerHTML = formHTML_FORM2_CONSTRUCTION();
+      break;
+    case 'form2_fac':
+      titleText = 'Use of Barangay Facilities and Properties';
+      formContainer.innerHTML = formHTML_FORM2_FACILITIES();
+      break;
+    case 'form3_katar':
+      titleText = 'Katarungang Pambarangay';
+      formContainer.innerHTML = formHTML_FORM3_KATAR();
+      break;
+    case 'form3_file':
+      titleText = 'Certificate to File Action';
+      formContainer.innerHTML = formHTML_FORM3_FILEACTION();
+      break;
+    case 'form3_bpo':
+      titleText = 'Barangay Protection Order';
+      formContainer.innerHTML = formHTML_FORM3_BPO();
+      break;
+    default:
+      formContainer.innerHTML = '<div class="p-3">Select a request type.</div>';
+      return;
+  }
 
-    // Insert the title above the form
-    formContainer.insertAdjacentHTML('afterbegin', `<h3 class="text-center fw-bold mb-3">${titleText}</h3>`);
+  // Insert the title above the form
+  formContainer.insertAdjacentHTML('afterbegin', `<h3 class="text-center fw-bold mb-3">${titleText}</h3>`);
 
-    // Reinitialize form behaviors
-    initFormBehaviors();
+  // Reinitialize form behaviors
+  initFormBehaviors();
 }
 
-// Attach behaviors to form fields (uppercase, numeric constraints, dynamic construction checks, submit handling)
+// ---------- Form Behaviors (fixed) ----------
+let _globalDocClickHandler = null;
+let _keyboardKeyHandler = null;
+let _focusInHandler = null;
+let _focusOutHandler = null;
+
 function initFormBehaviors() {
-    const activeForm = document.getElementById('activeForm');
-    if (!activeForm) return;
+  const activeForm = document.getElementById('activeForm');
+  if (!activeForm) return;
 
-    // uppercase for elements with class uppercase-required or uppercase-optional
-    document.querySelectorAll('.uppercase-required, .uppercase-optional').forEach(inp => {
-        inp.removeEventListener('input', toUpperHandler);
-        inp.addEventListener('input', toUpperHandler);
-    });
+  // Remove potential previous listeners before re-binding (idempotent)
+  // remove document click handler if present
+  if (_globalDocClickHandler) {
+    document.removeEventListener('click', _globalDocClickHandler);
+    _globalDocClickHandler = null;
+  }
+  if (_keyboardKeyHandler) {
+    // remove handlers from existing keys
+    document.querySelectorAll('.key').forEach(btn => btn.removeEventListener('click', _keyboardKeyHandler));
+    _keyboardKeyHandler = null;
+  }
+  if (_focusInHandler) {
+    document.removeEventListener('focusin', _focusInHandler);
+    _focusInHandler = null;
+  }
+  if (_focusOutHandler) {
+    document.removeEventListener('focusout', _focusOutHandler);
+    _focusOutHandler = null;
+  }
 
-    // Handle form field focus and keyboard interactions
-    const inputFields = document.querySelectorAll('input, textarea');
+  // uppercase for elements with class uppercase-required or uppercase-optional
+  document.querySelectorAll('.uppercase-required, .uppercase-optional').forEach(inp => {
+    inp.removeEventListener('input', toUpperHandler);
+    inp.addEventListener('input', toUpperHandler);
+  });
 
-    // Show keyboard when an input field is focused
-    inputFields.forEach(input => {
-        input.addEventListener('focus', function () {
-            currentInput = input;
-            keyboard.style.display = 'block'; // Show keyboard
-        });
-    });
+  // Use focusin/focusout (bubbles) to reliably detect focus across re-renders
+  _focusInHandler = (e) => {
+    const el = e.target;
+    if (el.matches && (el.matches('input') || el.matches('textarea'))) {
+      currentInput = el;
+      // ensure keyboard visible
+      keyboard.style.display = 'block';
+    }
+  };
+  document.addEventListener('focusin', _focusInHandler);
 
-    // Hide keyboard when clicking outside the input fields
-    document.addEventListener('click', function (e) {
-        if (!keyboard.contains(e.target) && !Array.from(inputFields).includes(e.target)) {
-            keyboard.style.display = 'none'; // Hide keyboard
-        }
-    });
+  _focusOutHandler = (e) => {
+    // If focus moves to an element inside the keyboard, keep it open.
+    // We'll rely on the global doc click to hide the keyboard only when clicking outside both keyboard and form.
+    // Do nothing here.
+  };
+  document.addEventListener('focusout', _focusOutHandler);
 
-    // Handle key clicks for on-screen keyboard
-    document.querySelectorAll('.key').forEach(button => {
-        button.addEventListener('click', function () {
-            const key = this.getAttribute('data-key');
+  // Global click will hide keyboard only when click target is outside keyboard AND outside activeForm
+  _globalDocClickHandler = (e) => {
+    const target = e.target;
+    // if click is inside keyboard, do nothing (we want to interact with it)
+    if (keyboard.contains(target)) return;
+    // if click is inside active form inputs, do nothing
+    if (activeForm.contains(target)) return;
+    // otherwise hide keyboard
+    keyboard.style.display = 'none';
+    currentInput = null;
+  };
+  document.addEventListener('click', _globalDocClickHandler);
 
-            if (key === 'Space') {
-                currentInput.value += ' ';
-            } else if (key === 'Delete') {
-                currentInput.value = currentInput.value.slice(0, -1);
-            } else {
-                currentInput.value += key;
-            }
-        });
-    });
-
-    // numeric only for contact input: pattern and inputmode exist; also strip letters on input
-    const contact = activeForm.querySelector('input[name="contactNum"]');
-    if (contact) {
-        contact.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-        });
+  // Handle key clicks for on-screen keyboard (single attached handler reused)
+  _keyboardKeyHandler = function (ev) {
+    ev.preventDefault();
+    if (!currentInput) {
+      // optional: flash keyboard or focus first input
+      return;
     }
 
-    // handle form submit
-    activeForm.addEventListener('submit', (ev) => {
-        ev.preventDefault();
-        handleFormSubmit(activeForm);
-    });
-
-    // clean previous invalid highlights
-    activeForm.querySelectorAll('.is-required-invalid').forEach(el => el.classList.remove('is-required-invalid'));
-}
-
-// ---------- Form Submit Validation ----------
-function handleFormSubmit(formEl) {
-    const errorNode = formEl.querySelector('#formError');
-    if (errorNode) errorNode.style.display = 'none';
-
-    // validation: required fields (HTML5 required coverage) + extra rules
-    const elements = Array.from(formEl.elements).filter(el => el.name);
-    const invalids = [];
-
-    // 1) basic required check
-    elements.forEach(el => {
-        unmarkInvalid(el);
-        const required = el.hasAttribute('required');
-        const value = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? (el.value || true) : '') : (el.value ?? '').toString().trim();
-
-        if (required) {
-            if ((el.type === 'radio')) {
-                const radios = formEl.querySelectorAll(`input[name="${el.name}"]`);
-                if (radios.length && !Array.from(radios).some(r => r.checked)) {
-                    invalids.push(radios[0]);
-                    radios.forEach(r => markInvalid(r));
-                }
-            } else if (el.type === 'checkbox') {
-                if (!el.checked && required) {
-                    invalids.push(el);
-                    markInvalid(el);
-                }
-            } else {
-                if (!value) {
-                    invalids.push(el);
-                    markInvalid(el);
-                }
-            }
-        }
-    });
-
-    // 2) Checkboxes validation and other specific validation
-
-    if (invalids.length) {
-        if (errorNode) errorNode.style.display = 'block';
-        focusFirstInvalid(invalids);
-        return;
-    }
-
-    // If passes validation: show confirmation modal
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    confirmModal.show();
-
-    const confirmNo = document.getElementById('confirmNo');
-    const confirmYes = document.getElementById('confirmYes');
-
-    // remove old listeners by cloning
-    confirmNo.replaceWith(confirmNo.cloneNode(true));
-    confirmYes.replaceWith(confirmYes.cloneNode(true));
-
-    const newConfirmNo = document.getElementById('confirmNo');
-    const newConfirmYes = document.getElementById('confirmYes');
-
-    newConfirmNo.addEventListener('click', () => {
-        confirmModal.hide();
-        focusFirstInvalid(invalids);  // Revalidate to focus on first invalid field if any
-    });
-
-    newConfirmYes.addEventListener('click', () => {
-        confirmModal.hide();
-        showSummary(formEl);
-    });
-}
-
-// ---------- Summary / Print Modal ----------
-function showSummary(formEl) {
-    const ref = randRef();
-    const summaryBody = document.getElementById('summaryBody');
-    const entries = {};
-
-    // Collect form data for the summary
-    Array.from(formEl.elements).forEach(el => {
-        if (!el.name) return;
-        if (el.type === 'checkbox') {
-            if (!entries[el.name]) entries[el.name] = [];
-            if (el.checked) entries[el.name].push(el.value || 'Yes');
-        } else if (el.type === 'radio') {
-            if (el.checked) entries[el.name] = el.value;
-            else if (!entries[el.name]) entries[el.name] = '';
+    const key = this.getAttribute('data-key');
+    // put caret at current selection end if possible
+    try {
+      currentInput.focus();
+      const start = currentInput.selectionStart ?? currentInput.value.length;
+      const end = currentInput.selectionEnd ?? start;
+      if (key === 'Space') {
+        // insert a space at caret
+        const before = currentInput.value.slice(0, start);
+        const after = currentInput.value.slice(end);
+        currentInput.value = before + ' ' + after;
+        const newPos = start + 1;
+        currentInput.setSelectionRange(newPos, newPos);
+      } else if (key === 'Delete') {
+        // delete before caret
+        if (start === end && start > 0) {
+          const before = currentInput.value.slice(0, start - 1);
+          const after = currentInput.value.slice(end);
+          currentInput.value = before + after;
+          const newPos = start - 1;
+          currentInput.setSelectionRange(newPos, newPos);
         } else {
-            entries[el.name] = el.value ?? '';
+          // replace selected text
+          const before = currentInput.value.slice(0, start);
+          const after = currentInput.value.slice(end);
+          currentInput.value = before + after;
+          currentInput.setSelectionRange(start, start);
         }
+      } else {
+        const ch = key;
+        const before = currentInput.value.slice(0, start);
+        const after = currentInput.value.slice(end);
+        currentInput.value = before + ch + after;
+        const newPos = start + ch.length;
+        currentInput.setSelectionRange(newPos, newPos);
+      }
+
+      // if input should be uppercase, trigger handler to normalize (keeps selection)
+      if (currentInput.classList.contains('uppercase-required') || currentInput.classList.contains('uppercase-optional')) {
+        // call toUpperHandler manually to preserve caret
+        const fakeEvent = { target: currentInput };
+        toUpperHandler(fakeEvent);
+      }
+      // ensure keyboard remains visible and input stays focused
+      keyboard.style.display = 'block';
+      currentInput.focus();
+    } catch (err) {
+      console.warn('Keyboard interaction error:', err);
+    }
+  };
+
+  document.querySelectorAll('.key').forEach(button => {
+    // remove previous listener just in case (safe)
+    button.removeEventListener('click', _keyboardKeyHandler);
+    button.addEventListener('click', _keyboardKeyHandler);
+  });
+
+  // numeric only for contact input: pattern and inputmode exist; also strip letters on input
+  const contact = activeForm.querySelector('input[name="contactNum"]');
+  if (contact) {
+    contact.removeEventListener('input', _contactInputHandler);
+    // create a named handler so we can remove it next time
+    contact.addEventListener('input', function contactHandler(e) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
     });
+  }
 
-    const selectedRequestText = requestTypeSelect.options[requestTypeSelect.selectedIndex].text;
+  // handle form submit
+  // remove previous submit listeners by cloning node (safe)
+  activeForm.removeEventListener('submit', handleFormSubmitWrapped);
+  activeForm.addEventListener('submit', handleFormSubmitWrapped);
 
-    let html = `<p><strong>Request Type:</strong> ${selectedRequestText}</p>
+  // clean previous invalid highlights
+  activeForm.querySelectorAll('.is-required-invalid').forEach(el => el.classList.remove('is-required-invalid'));
+}
+
+// we wrap the original handleFormSubmit to allow removing the listener easily
+function handleFormSubmitWrapped(ev) {
+  ev.preventDefault();
+  handleFormSubmit(ev.currentTarget);
+}
+
+// ---------- Form Submit Validation (unchanged logic, minor cleanup) ----------
+function handleFormSubmit(formEl) {
+  const errorNode = formEl.querySelector('#formError');
+  if (errorNode) errorNode.style.display = 'none';
+
+  // validation: required fields (HTML5 required coverage) + extra rules
+  const elements = Array.from(formEl.elements).filter(el => el.name);
+  const invalids = [];
+
+  // 1) basic required check
+  elements.forEach(el => {
+    unmarkInvalid(el);
+    const required = el.hasAttribute('required');
+    const value = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? (el.value || true) : '') : (el.value ?? '').toString().trim();
+
+    if (required) {
+      if ((el.type === 'radio')) {
+        const radios = formEl.querySelectorAll(`input[name="${el.name}"]`);
+        if (radios.length && !Array.from(radios).some(r => r.checked)) {
+          invalids.push(radios[0]);
+          radios.forEach(r => markInvalid(r));
+        }
+      } else if (el.type === 'checkbox') {
+        if (!el.checked && required) {
+          invalids.push(el);
+          markInvalid(el);
+        }
+      } else {
+        if (!value) {
+          invalids.push(el);
+          markInvalid(el);
+        }
+      }
+    }
+  });
+
+  if (invalids.length) {
+    if (errorNode) errorNode.style.display = 'block';
+    focusFirstInvalid(invalids);
+    return;
+  }
+
+  // If passes validation: show confirmation modal
+  const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+  confirmModal.show();
+
+  const confirmNo = document.getElementById('confirmNo');
+  const confirmYes = document.getElementById('confirmYes');
+
+  // remove old listeners by cloning
+  confirmNo.replaceWith(confirmNo.cloneNode(true));
+  confirmYes.replaceWith(confirmYes.cloneNode(true));
+
+  const newConfirmNo = document.getElementById('confirmNo');
+  const newConfirmYes = document.getElementById('confirmYes');
+
+  newConfirmNo.addEventListener('click', () => {
+    confirmModal.hide();
+    focusFirstInvalid(invalids);  // Revalidate to focus on first invalid field if any
+  });
+
+  newConfirmYes.addEventListener('click', () => {
+    confirmModal.hide();
+    showSummary(formEl);
+  });
+}
+
+// ---------- Summary / Print Modal (unchanged) ----------
+function showSummary(formEl) {
+  const ref = randRef();
+  const summaryBody = document.getElementById('summaryBody');
+  const entries = {};
+
+  // Collect form data for the summary
+  Array.from(formEl.elements).forEach(el => {
+    if (!el.name) return;
+    if (el.type === 'checkbox') {
+      if (!entries[el.name]) entries[el.name] = [];
+      if (el.checked) entries[el.name].push(el.value || 'Yes');
+    } else if (el.type === 'radio') {
+      if (el.checked) entries[el.name] = el.value;
+      else if (!entries[el.name]) entries[el.name] = '';
+    } else {
+      entries[el.name] = el.value ?? '';
+    }
+  });
+
+  const selectedRequestText = requestTypeSelect.options[requestTypeSelect.selectedIndex].text;
+
+  let html = `<p><strong>Request Type:</strong> ${selectedRequestText}</p>
               <p><strong>Reference Number:</strong> ${ref}</p><hr>`;
 
-    for (const [k, v] of Object.entries(entries)) {
-        let displayVal = Array.isArray(v) ? v.join(', ') : v;
-        if (displayVal === '') displayVal = '<em>(blank)</em>';
-        html += `<div class="col-md-6 mb-2"><strong>${k}:</strong> ${displayVal}</div>`;
-    }
+  for (const [k, v] of Object.entries(entries)) {
+    let displayVal = Array.isArray(v) ? v.join(', ') : v;
+    if (displayVal === '') displayVal = '<em>(blank)</em>';
+    html += `<div class="col-md-6 mb-2"><strong>${k}:</strong> ${displayVal}</div>`;
+  }
 
-    summaryBody.innerHTML = html;
+  summaryBody.innerHTML = html;
 
-    const summaryModal = new bootstrap.Modal(document.getElementById('summaryModal'));
-    summaryModal.show();
+  const summaryModal = new bootstrap.Modal(document.getElementById('summaryModal'));
+  summaryModal.show();
 
-    const printBtn = document.getElementById('printReceiptBtn');
-    const newPrint = printBtn.cloneNode(true);
-    printBtn.replaceWith(newPrint);
+  const printBtn = document.getElementById('printReceiptBtn');
+  const newPrint = printBtn.cloneNode(true);
+  printBtn.replaceWith(newPrint);
 
-    newPrint.addEventListener('click', () => {
-        document.getElementById('printingOverlay').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('printingOverlay').style.display = 'none';
-            summaryModal.hide();
-            formEl.reset();
-            console.log('Submission printed. Reference:', ref);
-        }, 3000);
-    });
+  newPrint.addEventListener('click', () => {
+    document.getElementById('printingOverlay').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('printingOverlay').style.display = 'none';
+      summaryModal.hide();
+      formEl.reset();
+      console.log('Submission printed. Reference:', ref);
+    }, 3000);
+  });
 }
 
 // ---------- startup ----------
 requestTypeSelect.addEventListener('change', renderSelectedForm);
 document.getElementById('backBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
+  window.location.href = 'index.html';
 });
 
 // initial render
