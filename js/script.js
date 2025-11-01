@@ -4,6 +4,9 @@ const requestTypeSelect = document.getElementById('requestTypeSelect');
 const keyboard = document.getElementById('keyboard');
 let currentInput = null;
 
+let _bdayChangeHandler = null;
+let _ageInputHandler = null;
+
 // --- Helper utilities (kept from your original) ---
 function randRef() {
   const d = new Date();
@@ -65,7 +68,7 @@ function template_FORM1_COMMON(purposeLabel = 'PURPOSE:') {
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label" for="age">AGE</label>
-            <input id="age" name="age" type="number" min="0" max="150" class="form-control" placeholder="age" required>
+            <input id="age" name="age" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="age" required>
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label" for="civilStatus">CIVIL STATUS</label>
@@ -375,6 +378,100 @@ function renderSelectedForm() {
   initFormBehaviors();
 }
 
+// ---------- Auto-age calculation from birthday ----------
+function computeAgeFromDOB(dobString) {
+  if (!dobString) return '';
+  const dob = new Date(dobString);
+  if (isNaN(dob)) return '';
+  const today = new Date();
+  // use only date portion to avoid timezone issues
+  const y = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  const d = today.getDate() - dob.getDate();
+  let age = y;
+  if (m < 0 || (m === 0 && d < 0)) age = y - 1;
+  if (age < 0) return ''; // future date -> empty
+  return age;
+}
+
+// call this function to wire up the bday -> age behavior
+function wireAutoAge() {
+  const bday = document.getElementById('bday');
+  const age = document.getElementById('age');
+  if (!bday || !age) return;
+
+  // keep age editable
+  age.readOnly = false;
+
+  // compute on load if bday exists
+  if (bday.value) {
+    const a = computeAgeFromDOB(bday.value);
+    if (a !== '' && (age.value === '' || Number(age.value) !== a)) {
+      age.value = String(a);
+    }
+  }
+
+  // remove previous handlers if any
+  if (_bdayChangeHandler) {
+    bday.removeEventListener('change', _bdayChangeHandler);
+    bday.removeEventListener('input', _bdayChangeHandler);
+  }
+  if (_ageInputHandler) {
+    age.removeEventListener('input', _ageInputHandler);
+  }
+
+  // When birthday changes — always correct the age to computed value.
+  _bdayChangeHandler = function () {
+    const computed = computeAgeFromDOB(bday.value);
+    if (computed === '') return; // ignore invalid / future date
+
+    // if the typed age differs (or empty) — overwrite with computed value
+    if (age.value === '' || Number(age.value) !== computed) {
+      age.value = String(computed);
+
+      // subtle visual feedback: flash light green briefly
+      const origBg = age.style.backgroundColor || '';
+      age.style.transition = 'background-color 0.22s';
+      age.style.backgroundColor = '#d4edda'; // success-ish flash
+      setTimeout(() => {
+        age.style.backgroundColor = origBg;
+      }, 450);
+      // remove any 'invalid' highlight if present
+      unmarkInvalid(age);
+    }
+  };
+
+  // When user types into age: allow editing but show a warning if it doesn't match the currently entered birthday
+  _ageInputHandler = function () {
+    // if no birthday, nothing to validate against
+    if (!bday.value) {
+      age.classList.remove('is-required-invalid');
+      return;
+    }
+    const computed = computeAgeFromDOB(bday.value);
+    if (computed === '') {
+      age.classList.remove('is-required-invalid');
+      return;
+    }
+
+    const typed = Number(age.value);
+    if (!Number.isFinite(typed) || typed !== computed) {
+      // indicate mismatch but do not overwrite here
+      // use your existing invalid style to make it noticeable
+      markInvalid(age);
+    } else {
+      unmarkInvalid(age);
+    }
+  };
+
+  // attach listeners
+  bday.addEventListener('change', _bdayChangeHandler);
+  bday.addEventListener('input', _bdayChangeHandler);
+  age.addEventListener('input', _ageInputHandler);
+}
+
+
+
 // ---------- Form Behaviors (fixed) ----------
 let _globalDocClickHandler = null;
 let _keyboardKeyHandler = null;
@@ -521,6 +618,11 @@ function initFormBehaviors() {
   // remove previous submit listeners by cloning node (safe)
   activeForm.removeEventListener('submit', handleFormSubmitWrapped);
   activeForm.addEventListener('submit', handleFormSubmitWrapped);
+
+
+ // auto-age wiring
+  wireAutoAge();
+
 
   // clean previous invalid highlights
   activeForm.querySelectorAll('.is-required-invalid').forEach(el => el.classList.remove('is-required-invalid'));

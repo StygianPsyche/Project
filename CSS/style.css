@@ -64,6 +64,8 @@ body {
   max-width: 100%;
   margin: 0 auto;
 }
+
+
 /* Status Page*/
 /* =============================
    Barangay Ugong Kiosk - Status Page
@@ -235,4 +237,16 @@ body {
 
 .voice-btn {
   margin-left: 10px;
+}
+
+/* remove number input spinner buttons */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;      /* future-proof */
 }
