@@ -499,10 +499,11 @@ function initFormBehaviors() {
 
   // Remove potential previous listeners before re-binding (idempotent)
   // remove document click handler if present
-  if (_globalDocClickHandler) {
-    document.removeEventListener('click', _globalDocClickHandler);
+    if (_globalDocClickHandler) {
+    document.removeEventListener('mousedown', _globalDocClickHandler);
     _globalDocClickHandler = null;
   }
+
   if (_keyboardKeyHandler) {
     // remove handlers from existing keys
     document.querySelectorAll('.key').forEach(btn => btn.removeEventListener('click', _keyboardKeyHandler));
@@ -541,18 +542,30 @@ function initFormBehaviors() {
   };
   document.addEventListener('focusout', _focusOutHandler);
 
-  // Global click will hide keyboard only when click target is outside keyboard AND outside activeForm
+    // Global hide handler — use mousedown and check activeElement to avoid races/blinks
   _globalDocClickHandler = (e) => {
     const target = e.target;
-    // if click is inside keyboard, do nothing (we want to interact with it)
+
+    // keep keyboard open if interacting with keyboard or form
     if (keyboard.contains(target)) return;
-    // if click is inside active form inputs, do nothing
-    if (activeForm.contains(target)) return;
-    // otherwise hide keyboard
+    if (activeForm && activeForm.contains(target)) return;
+
+    // If an input inside the form is currently focused, do not hide (avoids race when focus changes)
+    const active = document.activeElement;
+    if (active && activeForm && activeForm.contains(active) &&
+        (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+      return;
+    }
+
+    // Otherwise hide keyboard
     keyboard.style.display = 'none';
+    keyboard.setAttribute('aria-hidden', 'true');
     currentInput = null;
   };
-  document.addEventListener('click', _globalDocClickHandler);
+
+  // listen on mousedown instead of click to avoid event-order races
+  document.addEventListener('mousedown', _globalDocClickHandler);
+
 
   // Handle key clicks for on-screen keyboard (single attached handler reused)
   _keyboardKeyHandler = function (ev) {
