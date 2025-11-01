@@ -162,9 +162,13 @@ function formHTML_FORM2_CONSTRUCTION() {
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="contactNum">CONTACT#</label>
-            <input id="contactNum" name="contactNum" type="tel" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="numbers only" required>
-          </div>
+  <label class="form-label" for="contactNum">CONTACT#</label>
+  <div class="input-group">
+    <span class="input-group-text">+63</span>
+    <input id="contactNum" name="contactNum" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="912 452 1234" required autocomplete="tel">
+  </div>
+  <div class="form-text">Enter 10 digits only (mobile format). Spaces will be added automatically.</div>
+</div>
 
           <div class="mb-3">
             <label class="form-label">TYPE OF CONSTRUCTION <small class="text-muted">(select at least one)</small></label>
@@ -470,6 +474,15 @@ function wireAutoAge() {
   age.addEventListener('input', _ageInputHandler);
 }
 
+// format raw digits (10) into "xxx xxx xxxx"
+function formatPHNumber(digits) {
+  // remove non-digits just in case
+  const d = (digits || '').replace(/\D/g, '').slice(0, 10);
+  if (!d) return '';
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0,3)} ${d.slice(3)}`;
+  return `${d.slice(0,3)} ${d.slice(3,6)} ${d.slice(6)}`;
+}
 
 
 // ---------- Form Behaviors (fixed) ----------
@@ -604,15 +617,70 @@ function initFormBehaviors() {
     button.addEventListener('click', _keyboardKeyHandler);
   });
 
-  // numeric only for contact input: pattern and inputmode exist; also strip letters on input
-  const contact = activeForm.querySelector('input[name="contactNum"]');
-  if (contact) {
-    contact.removeEventListener('input', _contactInputHandler);
-    // create a named handler so we can remove it next time
-    contact.addEventListener('input', function contactHandler(e) {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '');
-    });
+  // numeric-only + auto-format for PH mobile number (10 digits, displayed as "xxx xxx xxxx")
+const contact = activeForm.querySelector('input[name="contactNum"]');
+if (contact) {
+  // remove any previous handler (safer)
+  contact.removeEventListener('input', contact._phHandler);
+  contact._phHandler = function (e) {
+    // keep only digits, max 10
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 10);
+    const formatted = formatPHNumber(raw);
+    // set the formatted value and move caret to end (simple, robust)
+    e.target.value = formatted;
+  };
+  contact.addEventListener('input', contact._phHandler);
+
+  // optional: prevent paste from inserting non-digit content
+  contact.addEventListener('paste', function (ev) {
+    ev.preventDefault();
+    const txt = (ev.clipboardData || window.clipboardData).getData('text') || '';
+    const digits = txt.replace(/\D/g, '').slice(0, 10);
+    contact.value = formatPHNumber(digits);
+  });
+}
+// ---------- construction spec toggle (enable spec input when checkbox checked) ----------
+const consChecks = activeForm.querySelectorAll('.cons-check');
+consChecks.forEach(cb => {
+  const formCheckBlock = cb.closest('.form-check');
+  const spec = formCheckBlock ? formCheckBlock.querySelector('.cons-spec') : null;
+  if (!spec) return;
+
+  // initial state
+  spec.disabled = !cb.checked;
+  if (!cb.checked) {
+    spec.value = '';
+    spec.removeAttribute('name');
+    spec.required = false;
+  } else {
+    spec.setAttribute('name', `${cb.id}Spec`);
+    spec.required = false; // change to true if you want it mandatory when checked
   }
+
+  // remove previous handler if present
+  if (cb._consHandler) cb.removeEventListener('change', cb._consHandler);
+
+  cb._consHandler = function () {
+    if (cb.checked) {
+      spec.disabled = false;
+      spec.setAttribute('name', `${cb.id}Spec`);
+      spec.required = false; // set true if you want required
+      // optional: focus the newly enabled field
+      // spec.focus();
+    } else {
+      spec.disabled = true;
+      spec.required = false;
+      spec.removeAttribute('name');
+      spec.value = '';
+    }
+  };
+
+  cb.addEventListener('change', cb._consHandler);
+});
+
+
+
+
 
   // handle form submit
   // remove previous submit listeners by cloning node (safe)
@@ -670,6 +738,40 @@ function handleFormSubmit(formEl) {
     }
   });
 
+    // ---------- additional validation: TYPE OF CONSTRUCTION (Form 2 - Construction) ----------
+  // run this after the basic required-check loop and before the invalids early return
+  const consContainer = formEl.querySelector('#constructionTypes');
+  if (consContainer) {
+    const checks = Array.from(consContainer.querySelectorAll('.cons-check'));
+    // if there are no checkboxes found, skip
+    if (checks.length) {
+      const anyChecked = checks.some(c => c.checked);
+      if (!anyChecked) {
+        // no selection -> force user to choose one
+        invalids.push(checks[0]);
+        checks.forEach(c => markInvalid(c));
+      } else {
+        // for each checked checkbox, ensure its spec input (if present) is filled
+        for (const c of checks) {
+          if (!c.checked) continue;
+          const block = c.closest('.form-check');
+          const spec = block ? block.querySelector('.cons-spec') : null;
+          // if spec exists and is enabled, require a non-empty value
+          if (spec) {
+            const val = (spec.value ?? '').toString().trim();
+            if (!val) {
+              invalids.push(spec);
+              markInvalid(spec);
+            } else {
+              unmarkInvalid(spec);
+            }
+          }
+        }
+      }
+    }
+  }
+
+
   if (invalids.length) {
     if (errorNode) errorNode.style.display = 'block';
     focusFirstInvalid(invalids);
@@ -706,6 +808,15 @@ function showSummary(formEl) {
   const ref = randRef();
   const summaryBody = document.getElementById('summaryBody');
   const entries = {};
+// Normalize contact display: if contactNum exists, ensure it's shown as "+63 xxx xxx xxxx"
+if (entries.contactNum) {
+  // strip non-digits then format
+  const digits = String(entries.contactNum).replace(/\D/g, '').slice(0, 10);
+  const formatted = digits ? formatPHNumber(digits) : '';
+  entries.contactNum = formatted ? `+63 ${formatted}` : '';
+}
+
+
 
   // Collect form data for the summary
   Array.from(formEl.elements).forEach(el => {
