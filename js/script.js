@@ -165,7 +165,7 @@ function formHTML_FORM2_CONSTRUCTION() {
   <label class="form-label" for="contactNum">CONTACT#</label>
   <div class="input-group">
     <span class="input-group-text">+63</span>
-    <input id="contactNum" name="contactNum" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="912 452 1234" required autocomplete="tel">
+    <input id="contactNum" name="contactNum" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="912 452 1234" required autocomplete="tel" maxlength="12">
   </div>
   <div class="form-text">Enter 10 digits only (mobile format). Spaces will be added automatically.</div>
 </div>
@@ -618,69 +618,69 @@ function initFormBehaviors() {
   });
 
   // numeric-only + auto-format for PH mobile number (10 digits, displayed as "xxx xxx xxxx")
-const contact = activeForm.querySelector('input[name="contactNum"]');
-if (contact) {
-  // remove any previous handler (safer)
-  contact.removeEventListener('input', contact._phHandler);
-  contact._phHandler = function (e) {
-    // keep only digits, max 10
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 10);
-    const formatted = formatPHNumber(raw);
-    // set the formatted value and move caret to end (simple, robust)
-    e.target.value = formatted;
-  };
-  contact.addEventListener('input', contact._phHandler);
+  const contact = activeForm.querySelector('input[name="contactNum"]');
+  if (contact) {
+    // remove any previous handlers if present
+    if (contact._phHandler) contact.removeEventListener('input', contact._phHandler);
+    if (contact._pasteHandler) contact.removeEventListener('paste', contact._pasteHandler);
 
-  // optional: prevent paste from inserting non-digit content
-  contact.addEventListener('paste', function (ev) {
-    ev.preventDefault();
-    const txt = (ev.clipboardData || window.clipboardData).getData('text') || '';
-    const digits = txt.replace(/\D/g, '').slice(0, 10);
-    contact.value = formatPHNumber(digits);
-  });
-}
-// ---------- construction spec toggle (enable spec input when checkbox checked) ----------
-const consChecks = activeForm.querySelectorAll('.cons-check');
-consChecks.forEach(cb => {
-  const formCheckBlock = cb.closest('.form-check');
-  const spec = formCheckBlock ? formCheckBlock.querySelector('.cons-spec') : null;
-  if (!spec) return;
+    contact._phHandler = function (e) {
+      // keep only digits, max 10
+      const raw = e.target.value.replace(/\D/g, '').slice(0, 10);
+      const formatted = formatPHNumber(raw);
+      // set the formatted value and move caret to end (simple, robust)
+      e.target.value = formatted;
+    };
+    contact.addEventListener('input', contact._phHandler);
 
-  // initial state
-  spec.disabled = !cb.checked;
-  if (!cb.checked) {
-    spec.value = '';
-    spec.removeAttribute('name');
-    spec.required = false;
-  } else {
-    spec.setAttribute('name', `${cb.id}Spec`);
-    spec.required = false; // change to true if you want it mandatory when checked
+    // optional: prevent paste from inserting non-digit content
+    contact._pasteHandler = function (ev) {
+      ev.preventDefault();
+      const txt = (ev.clipboardData || window.clipboardData).getData('text') || '';
+      const digits = txt.replace(/\D/g, '').slice(0, 10);
+      contact.value = formatPHNumber(digits);
+    };
+    contact.addEventListener('paste', contact._pasteHandler);
   }
 
-  // remove previous handler if present
-  if (cb._consHandler) cb.removeEventListener('change', cb._consHandler);
+  // ---------- construction spec toggle (enable spec input when checkbox checked) ----------
+  const consChecks = activeForm.querySelectorAll('.cons-check');
+  consChecks.forEach(cb => {
+    const formCheckBlock = cb.closest('.form-check');
+    const spec = formCheckBlock ? formCheckBlock.querySelector('.cons-spec') : null;
+    if (!spec) return;
 
-  cb._consHandler = function () {
-    if (cb.checked) {
-      spec.disabled = false;
-      spec.setAttribute('name', `${cb.id}Spec`);
-      spec.required = false; // set true if you want required
-      // optional: focus the newly enabled field
-      // spec.focus();
-    } else {
-      spec.disabled = true;
-      spec.required = false;
-      spec.removeAttribute('name');
+    // initial state
+    spec.disabled = !cb.checked;
+    if (!cb.checked) {
       spec.value = '';
+      spec.removeAttribute('name');
+      spec.required = false;
+    } else {
+      spec.setAttribute('name', `${cb.id}Spec`);
+      spec.required = false; // change to true if you want it mandatory when checked
     }
-  };
 
-  cb.addEventListener('change', cb._consHandler);
-});
+    // remove previous handler if present
+    if (cb._consHandler) cb.removeEventListener('change', cb._consHandler);
 
+    cb._consHandler = function () {
+      if (cb.checked) {
+        spec.disabled = false;
+        spec.setAttribute('name', `${cb.id}Spec`);
+        spec.required = false; // set true if you want required
+        // optional: focus the newly enabled field
+        // spec.focus();
+      } else {
+        spec.disabled = true;
+        spec.required = false;
+        spec.removeAttribute('name');
+        spec.value = '';
+      }
+    };
 
-
-
+    cb.addEventListener('change', cb._consHandler);
+  });
 
   // handle form submit
   // remove previous submit listeners by cloning node (safe)
@@ -738,7 +738,7 @@ function handleFormSubmit(formEl) {
     }
   });
 
-    // ---------- additional validation: TYPE OF CONSTRUCTION (Form 2 - Construction) ----------
+  // ---------- additional validation: TYPE OF CONSTRUCTION (Form 2 - Construction) ----------
   // run this after the basic required-check loop and before the invalids early return
   const consContainer = formEl.querySelector('#constructionTypes');
   if (consContainer) {
@@ -770,6 +770,31 @@ function handleFormSubmit(formEl) {
       }
     }
   }
+  // ---------- date validation: no future dates allowed + birthday min-age ----------
+  const today = new Date();
+  const dateInputs = Array.from(formEl.querySelectorAll('input[type="date"]'));
+  dateInputs.forEach(di => {
+    if (!di.value) return;
+    // Use midnight for safe comparison
+    const v = new Date(di.value + 'T00:00:00');
+    if (v > today) {
+      invalids.push(di);
+      markInvalid(di);
+    }
+  });
+
+  // ensure birthday corresponds to at least 8 years old
+  const bdayEl = formEl.querySelector('#bday');
+  if (bdayEl && bdayEl.value) {
+    const age = computeAgeFromDOB(bdayEl.value);
+    // computeAgeFromDOB returns '' for invalid/future date — treat as invalid
+    if (age === '' || age < 8) {
+      invalids.push(bdayEl);
+      markInvalid(bdayEl);
+    }
+  }
+
+
 
 
   if (invalids.length) {
@@ -808,15 +833,6 @@ function showSummary(formEl) {
   const ref = randRef();
   const summaryBody = document.getElementById('summaryBody');
   const entries = {};
-// Normalize contact display: if contactNum exists, ensure it's shown as "+63 xxx xxx xxxx"
-if (entries.contactNum) {
-  // strip non-digits then format
-  const digits = String(entries.contactNum).replace(/\D/g, '').slice(0, 10);
-  const formatted = digits ? formatPHNumber(digits) : '';
-  entries.contactNum = formatted ? `+63 ${formatted}` : '';
-}
-
-
 
   // Collect form data for the summary
   Array.from(formEl.elements).forEach(el => {
@@ -831,6 +847,13 @@ if (entries.contactNum) {
       entries[el.name] = el.value ?? '';
     }
   });
+
+  // Normalize contact display: if contactNum exists, ensure it's shown as "+63 xxx xxx xxxx"
+  if (entries.contactNum) {
+    const digits = String(entries.contactNum).replace(/\D/g, '').slice(0, 10);
+    const formatted = digits ? formatPHNumber(digits) : '';
+    entries.contactNum = formatted ? `+63 ${formatted}` : '';
+  }
 
   const selectedRequestText = requestTypeSelect.options[requestTypeSelect.selectedIndex].text;
 
