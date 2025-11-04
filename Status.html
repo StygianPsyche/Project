@@ -10,32 +10,20 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
-  <link rel="stylesheet" href="CSS/keyboard.css" />
+  <link rel="stylesheet" href="CSS/numpad.css" />
+  
+ <style>
+  /* keep minimal inline styles only — do NOT override the numpad grid */
+  /* removed the conflicting #keyboardLayout display rule so .numpad-grid (CSS file) controls layout */
+  .keyboard-button {
+    padding:10px 12px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    background:#fff;
+    cursor:pointer;
+  }
+</style>
 
-  <style>
-    /* simple mic button style (if not in your keyboard.css) */
-    .mic-btn {
-      background-color: #f5f5f5;
-      font-size: 20px;
-      color: #333;
-      cursor: pointer;
-      border-radius: 50%;
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-    .mic-btn.active {
-      background-color: #dcfce7;
-      border-color: #2f855a;
-      box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.12);
-    }
-    #keyboard { display: none; } /* keep hidden until needed */
-    #keyboardLayout { display:flex; flex-wrap:wrap; gap:6px; }
-    .keyboard-button { padding:10px 12px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
-  </style>
 </head>
 <body class="bg-light">
 
@@ -46,8 +34,17 @@
       <div class="col-md-4">
         <div class="card shadow-sm p-4 text-center">
           <h5 class="fw-bold mb-3">Enter Reference Number</h5>
-          <!-- Reference number input field (only numbers allowed) -->
-          <input type="number" id="refInput" class="form-control mb-3 text-center fs-5" placeholder="Enter Reference Number" min="1">
+          <!-- switched to text + inputmode to avoid native spinner and allow leading zeros -->
+          <input
+            id="refInput"
+            type="text"
+            inputmode="numeric"
+            pattern="\d*"
+            class="form-control mb-3 text-center fs-5"
+            placeholder="Enter Reference Number"
+            maxlength="12"
+            autocomplete="off"
+          >
         </div>
       </div>
 
@@ -56,7 +53,7 @@
         <div class="card shadow-sm p-4">
           <h4 class="fw-bold mb-3 text-center">Check Request Status</h4>
 
-          <div id="infoBox" class="info-box p-3 text-muted">
+          <div id="infoBox" class="info-box p-3 text-muted" aria-live="polite" role="status">
             <p>Enter your reference number above and press Enter to check the status.</p>
           </div>
         </div>
@@ -69,26 +66,28 @@
     </div>
   </div>
 
-  <!-- On-Screen Keyboard -->
-  <div id="keyboard" class="p-3">
-    <!-- Mic button replacing the checkbox -->
-    <div id="voiceToggle" class="mb-2 text-center">
-      <button class="mic-btn" id="micBtn" title="Toggle voice command">🎤</button>
-    </div>
+  <!-- On-screen numeric keypad -->
+  <div id="keyboard" class="numpad" aria-hidden="true" role="application" aria-label="numeric keypad">
+    <div id="keyboardLayout" class="numpad-grid" aria-label="numpad">
+      <!-- row 1 -->
+      <button class="keyboard-button" data-key="1" type="button">1</button>
+      <button class="keyboard-button" data-key="2" type="button">2</button>
+      <button class="keyboard-button" data-key="3" type="button">3</button>
 
-    <div id="keyboardLayout" class="text-center">
-      <button class="keyboard-button" data-key="1">1</button>
-      <button class="keyboard-button" data-key="2">2</button>
-      <button class="keyboard-button" data-key="3">3</button>
-      <button class="keyboard-button" data-key="4">4</button>
-      <button class="keyboard-button" data-key="5">5</button>
-      <button class="keyboard-button" data-key="6">6</button>
-      <button class="keyboard-button" data-key="7">7</button>
-      <button class="keyboard-button" data-key="8">8</button>
-      <button class="keyboard-button" data-key="9">9</button>
-      <button class="keyboard-button" data-key="0">0</button>
-      <button class="keyboard-button" data-key="clear">Clr</button>
-      <button class="keyboard-button" data-key="enter">Entr</button>
+      <!-- row 2 -->
+      <button class="keyboard-button" data-key="4" type="button">4</button>
+      <button class="keyboard-button" data-key="5" type="button">5</button>
+      <button class="keyboard-button" data-key="6" type="button">6</button>
+
+      <!-- row 3 -->
+      <button class="keyboard-button" data-key="7" type="button">7</button>
+      <button class="keyboard-button" data-key="8" type="button">8</button>
+      <button class="keyboard-button" data-key="9" type="button">9</button>
+
+      <!-- row 4: Erase (backspace), 0, Enter -->
+      <button class="keyboard-button keyboard-erase" data-key="erase" type="button" aria-label="erase">⌫</button>
+      <button class="keyboard-button" data-key="0" type="button">0</button>
+      <button class="keyboard-button keyboard-enter" data-key="enter" type="button">Entr</button>
     </div>
   </div>
 
@@ -96,111 +95,101 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Elements
     const refInput = document.getElementById("refInput");
     const infoBox = document.getElementById("infoBox");
     const keyboard = document.getElementById("keyboard");
-    const micBtn = document.getElementById("micBtn");
+    const keyboardLayout = document.getElementById("keyboardLayout");
 
-    // Show on-screen keyboard when text box is clicked
-    refInput.addEventListener("focus", () => {
+    // helper to keep only digits
+    const sanitizeDigits = (s) => (s ?? "").toString().replace(/\D+/g, "");
+
+    // central status checker (extracted so both Enter key and on-screen Enter call same logic)
+    function checkStatus() {
+      const ref = sanitizeDigits(refInput.value).trim();
+      if (!ref) {
+        infoBox.innerHTML = `<p class='text-warning'>Please enter a reference number.</p>`;
+        return;
+      }
+      let statusMessage = "";
+      switch(ref) {
+        case "1":
+          statusMessage = `<h6 class="fw-bold text-info">Status: On Queue</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
+          break;
+        case "2":
+          statusMessage = `<h6 class="fw-bold text-info">Status: Processing</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
+          break;
+        case "3":
+          statusMessage = `<h6 class="fw-bold text-info">Status: Payment Pending</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
+          break;
+        case "4":
+          statusMessage = `<h6 class="fw-bold text-info">Status: Ready to Pickup</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
+          break;
+        case "5":
+          statusMessage = `<h6 class="fw-bold text-info">Status: Released</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
+          break;
+        default:
+          statusMessage = `<p class='text-warning'>No record found for Reference No. ${ref}.</p>`;
+      }
+      infoBox.innerHTML = statusMessage;
+      hideKeyboard();
+    }
+
+    // show/hide keyboard
+    function showKeyboard() {
       keyboard.style.display = "block";
-    });
+      keyboard.setAttribute('aria-hidden','false');
+      // keep focus on input so keyboard remains usable
+      setTimeout(() => refInput.focus(), 50);
+    }
+    function hideKeyboard() {
+      keyboard.style.display = "none";
+      keyboard.setAttribute('aria-hidden','true');
+    }
 
-    // Hide the keyboard when Enter is pressed (and show status)
+    // show on focus
+    refInput.addEventListener("focus", showKeyboard);
+
+    // keyboard Enter/Escape via physical keyboard
     refInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        const ref = (refInput.value ?? "").trim();
-        let statusMessage = "";
-
-        // Define the responses based on reference number
-        switch(ref) {
-          case "1":
-            statusMessage = `
-              <h6 class="fw-bold text-info">Status: On Queue</h6>
-              <p><strong>Date Submitted:</strong> 10/29/2025</p>
-              <p><strong>Last Updated:</strong> 10/30/2025</p>
-            `;
-            break;
-          case "2":
-            statusMessage = `
-              <h6 class="fw-bold text-info">Status: Processing</h6>
-              <p><strong>Date Submitted:</strong> 10/29/2025</p>
-              <p><strong>Last Updated:</strong> 10/30/2025</p>
-            `;
-            break;
-          case "3":
-            statusMessage = `
-              <h6 class="fw-bold text-info">Status: Payment Pending</h6>
-              <p><strong>Date Submitted:</strong> 10/29/2025</p>
-              <p><strong>Last Updated:</strong> 10/30/2025</p>
-            `;
-            break;
-          case "4":
-            statusMessage = `
-              <h6 class="fw-bold text-info">Status: Ready to Pickup</h6>
-              <p><strong>Date Submitted:</strong> 10/29/2025</p>
-              <p><strong>Last Updated:</strong> 10/30/2025</p>
-            `;
-            break;
-          case "5":
-            statusMessage = `
-              <h6 class="fw-bold text-info">Status: Released</h6>
-              <p><strong>Date Submitted:</strong> 10/29/2025</p>
-              <p><strong>Last Updated:</strong> 10/30/2025</p>
-            `;
-            break;
-          default:
-            statusMessage = `<p class='text-warning'>No record found for Reference No. ${ref}.</p>`;
-        }
-
-        // Update the infoBox with the status message
-        infoBox.innerHTML = statusMessage;
-
-        // Hide the keyboard
-        keyboard.style.display = "none";
+        event.preventDefault();
+        checkStatus();
+      } else if (event.key === "Escape") {
+        hideKeyboard();
+        refInput.blur();
       }
     });
 
-    // Handle keyboard button clicks
-    document.getElementById("keyboardLayout").addEventListener("click", (e) => {
+    // on-screen keypad clicks (erase acts as backspace)
+    keyboardLayout.addEventListener("click", (e) => {
       const key = e.target.dataset.key;
-      if (key) {
-        if (key === "clear") {
-          refInput.value = "";
-        } else if (key === "enter") {
-          // trigger Enter behavior
-          refInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-        } else {
-          // append numeric key
-          // ensure not to break min attribute: simply append as string
-          refInput.value = (refInput.value ?? "") + key;
-          refInput.focus(); // keep focus so keyboard remains visible
-        }
-      }
-    });
+      if (!key) return;
 
-    // Mic button toggling (visual only)
-    micBtn.addEventListener('click', () => {
-      micBtn.classList.toggle('active');
-
-      if (micBtn.classList.contains('active')) {
-        // placeholder: start listening
-        micBtn.setAttribute('title', 'Listening... click to stop');
-        // optionally provide visual feedback in infoBox
-        infoBox.innerHTML = `<p class="text-success">Voice command enabled (placeholder). Speak now...</p>`;
-        // Here you could start Web Speech API recognition if desired.
+      if (key === "erase") {
+        // remove last character
+        refInput.value = (refInput.value ?? "").toString().slice(0, -1);
+        refInput.focus();
+      } else if (key === "enter") {
+        checkStatus();
       } else {
-        // stop listening
-        micBtn.setAttribute('title', 'Toggle voice command');
-        infoBox.innerHTML = `<p class="text-muted">Voice command disabled.</p>`;
+        // numeric append
+        refInput.value = sanitizeDigits(refInput.value + key);
+        refInput.focus();
       }
     });
 
-    // Optional: hide keyboard when clicking outside input and keyboard
-    document.addEventListener('mousedown', (e) => {
+    // hide when clicking/tapping outside input & keyboard
+    document.addEventListener('pointerdown', (e) => {
       if (!keyboard.contains(e.target) && e.target !== refInput) {
-        keyboard.style.display = 'none';
+        hideKeyboard();
       }
+    });
+
+    // prevent non-digit paste
+    refInput.addEventListener('input', () => {
+      const clean = sanitizeDigits(refInput.value);
+      if (refInput.value !== clean) refInput.value = clean;
     });
   </script>
 </body>

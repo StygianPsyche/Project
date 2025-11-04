@@ -1,0 +1,106 @@
+/* numpad.css - classic 3x4 numeric keypad */
+
+/* container */
+#keyboard.numpad {
+  display: none; /* shown by JS when input is focused */
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: min(520px, calc(100% - 32px));
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  padding: 12px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* grid: exactly 3 columns */
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: center;
+  justify-items: stretch;
+}
+
+/* base key style */
+.keyboard-button {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid rgba(16,24,40,0.06);
+  border-radius: 10px;
+  min-height: 56px;
+  font-size: 1.25rem; /* ~20px */
+  font-weight: 700;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(16,24,40,0.04);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+  padding: 12px 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* specific styling for Enter key (accent) */
+.keyboard-button.keyboard-enter {
+  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+  color: #fff;
+  border: 1px solid rgba(13,44,182,0.18);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.18);
+}
+
+/* Erase (backspace) key subtle styling */
+.keyboard-button.keyboard-erase {
+  background: #fff;
+  color: #111827;
+  border: 1px solid rgba(16,24,40,0.06);
+  font-size: 1.125rem;
+}
+
+/* hover & active */
+.keyboard-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 26px rgba(16,24,40,0.08);
+}
+.keyboard-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(16,24,40,0.06);
+}
+
+/* focus (keyboard accessibility) */
+.keyboard-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.14);
+  transform: translateY(-1px);
+}
+
+/* responsive adjustments for smaller screens */
+@media (max-width: 420px) {
+  .keyboard-button {
+    min-height: 50px;
+    font-size: 1.1rem;
+    padding: 10px 6px;
+  }
+  #keyboard.numpad { padding: 10px; border-radius: 10px; bottom: 10px; }
+}
+
+/* aria-hidden helpers */
+#keyboard.numpad[aria-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity .18s, transform .18s;
+}
+#keyboard.numpad[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity .18s, transform .18s;
+}
