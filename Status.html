@@ -11,19 +11,71 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
   <link rel="stylesheet" href="CSS/numpad.css" />
-  
- <style>
-  /* keep minimal inline styles only — do NOT override the numpad grid */
-  /* removed the conflicting #keyboardLayout display rule so .numpad-grid (CSS file) controls layout */
-  .keyboard-button {
-    padding:10px 12px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    background:#fff;
-    cursor:pointer;
-  }
-</style>
 
+  <style>
+    /* accessibility floating button & menu */
+    .accessibility-btn {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 2000;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(13,110,253,0.16);
+      border: none;
+      cursor: pointer;
+    }
+    .accessibility-menu {
+      position: fixed;
+      right: 18px;
+      bottom: 82px;
+      z-index: 2000;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 8px;
+      display: none;
+      min-width: 200px;
+    }
+    .accessibility-menu button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .accessibility-menu button:focus,
+    .accessibility-menu button:hover {
+      background: rgba(13,110,253,0.06);
+    }
+
+    /* large text mode */
+    body.large-text {
+      font-size: 1.12rem;
+    }
+    body.large-text .card,
+    body.large-text .info-box {
+      font-size: 1.02rem;
+    }
+
+    /* ensure numpad sits above accessibility menu */
+    #keyboard { z-index: 1500; }
+
+    /* small helper for visually-hidden text (a11y) */
+    .sr-only { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -34,7 +86,6 @@
       <div class="col-md-4">
         <div class="card shadow-sm p-4 text-center">
           <h5 class="fw-bold mb-3">Enter Reference Number</h5>
-          <!-- switched to text + inputmode to avoid native spinner and allow leading zeros -->
           <input
             id="refInput"
             type="text"
@@ -44,6 +95,7 @@
             placeholder="Enter Reference Number"
             maxlength="12"
             autocomplete="off"
+            aria-label="Reference number input"
           >
         </div>
       </div>
@@ -51,7 +103,7 @@
       <!-- RIGHT SIDE - INFO -->
       <div class="col-md-6">
         <div class="card shadow-sm p-4">
-          <h4 class="fw-bold mb-3 text-center">Check Request Status</h4>
+          <h4 id="pageTitle" class="fw-bold mb-3 text-center">Check Request Status</h4>
 
           <div id="infoBox" class="info-box p-3 text-muted" aria-live="polite" role="status">
             <p>Enter your reference number above and press Enter to check the status.</p>
@@ -60,6 +112,7 @@
       </div>
 
     </div>
+
     <!-- Back to Home Button centered -->
     <div class="text-center mt-4">
       <button class="btn btn-outline-primary px-4" onclick="window.location.href='index.html'">← Back to Home</button>
@@ -69,42 +122,60 @@
   <!-- On-screen numeric keypad -->
   <div id="keyboard" class="numpad" aria-hidden="true" role="application" aria-label="numeric keypad">
     <div id="keyboardLayout" class="numpad-grid" aria-label="numpad">
-      <!-- row 1 -->
       <button class="keyboard-button" data-key="1" type="button">1</button>
       <button class="keyboard-button" data-key="2" type="button">2</button>
       <button class="keyboard-button" data-key="3" type="button">3</button>
 
-      <!-- row 2 -->
       <button class="keyboard-button" data-key="4" type="button">4</button>
       <button class="keyboard-button" data-key="5" type="button">5</button>
       <button class="keyboard-button" data-key="6" type="button">6</button>
 
-      <!-- row 3 -->
       <button class="keyboard-button" data-key="7" type="button">7</button>
       <button class="keyboard-button" data-key="8" type="button">8</button>
       <button class="keyboard-button" data-key="9" type="button">9</button>
 
-      <!-- row 4: Erase (backspace), 0, Enter -->
       <button class="keyboard-button keyboard-erase" data-key="erase" type="button" aria-label="erase">⌫</button>
       <button class="keyboard-button" data-key="0" type="button">0</button>
       <button class="keyboard-button keyboard-enter" data-key="enter" type="button">Entr</button>
     </div>
   </div>
 
+  
+  <!-- Accessibility button + menu (copied from index pattern) -->
+  <button class="accessibility-btn" id="accessibilityBtn" aria-haspopup="true" aria-expanded="false" aria-label="Accessibility menu">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M8 0a1 1 0 0 1 1 1v2h1a1 1 0 0 1 1 1v1h-1v1H6V5H5V4a1 1 0 0 1 1-1h1V1a1 1 0 0 1 1-1z" fill="#fff" opacity="0.9"/>
+      <circle cx="8" cy="11" r="3" fill="#fff" opacity="0.95"/>
+    </svg>
+  </button>
+
+  <div class="accessibility-menu" id="accessibilityMenu" role="menu" aria-hidden="true" aria-label="Accessibility options">
+    <button id="increaseText" role="menuitem" type="button"><i class="bi bi-type"></i> Increase Text Size</button>
+    <button id="readAloud" role="menuitem" type="button"><i class="bi bi-volume-up"></i> Read Aloud</button>
+    <button id="speechToText" role="menuitem" type="button"><i class="bi bi-mic"></i> Speech to Text</button>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Elements
+    // Existing elements for status/numpad
     const refInput = document.getElementById("refInput");
     const infoBox = document.getElementById("infoBox");
     const keyboard = document.getElementById("keyboard");
     const keyboardLayout = document.getElementById("keyboardLayout");
+    const pageTitle = document.getElementById("pageTitle");
 
-    // helper to keep only digits
+    // Accessibility elements
+    const accessibilityBtn = document.getElementById('accessibilityBtn');
+    const accessibilityMenu = document.getElementById('accessibilityMenu');
+    const increaseTextBtn = document.getElementById('increaseText');
+    const readAloudBtn = document.getElementById('readAloud');
+    const speechToTextBtn = document.getElementById('speechToText');
+
+    // --- Numpad logic (unchanged behavior) ---
     const sanitizeDigits = (s) => (s ?? "").toString().replace(/\D+/g, "");
 
-    // central status checker (extracted so both Enter key and on-screen Enter call same logic)
     function checkStatus() {
       const ref = sanitizeDigits(refInput.value).trim();
       if (!ref) {
@@ -135,11 +206,9 @@
       hideKeyboard();
     }
 
-    // show/hide keyboard
     function showKeyboard() {
       keyboard.style.display = "block";
       keyboard.setAttribute('aria-hidden','false');
-      // keep focus on input so keyboard remains usable
       setTimeout(() => refInput.focus(), 50);
     }
     function hideKeyboard() {
@@ -147,10 +216,8 @@
       keyboard.setAttribute('aria-hidden','true');
     }
 
-    // show on focus
     refInput.addEventListener("focus", showKeyboard);
 
-    // keyboard Enter/Escape via physical keyboard
     refInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -161,35 +228,141 @@
       }
     });
 
-    // on-screen keypad clicks (erase acts as backspace)
     keyboardLayout.addEventListener("click", (e) => {
       const key = e.target.dataset.key;
       if (!key) return;
-
       if (key === "erase") {
-        // remove last character
         refInput.value = (refInput.value ?? "").toString().slice(0, -1);
         refInput.focus();
       } else if (key === "enter") {
         checkStatus();
       } else {
-        // numeric append
         refInput.value = sanitizeDigits(refInput.value + key);
         refInput.focus();
       }
     });
 
-    // hide when clicking/tapping outside input & keyboard
     document.addEventListener('pointerdown', (e) => {
       if (!keyboard.contains(e.target) && e.target !== refInput) {
         hideKeyboard();
       }
+      // close accessibility menu when clicking outside
+      if (!accessibilityMenu.contains(e.target) && e.target !== accessibilityBtn) {
+        accessibilityMenu.style.display = 'none';
+        accessibilityBtn.setAttribute('aria-expanded','false');
+        accessibilityMenu.setAttribute('aria-hidden','true');
+      }
     });
 
-    // prevent non-digit paste
     refInput.addEventListener('input', () => {
       const clean = sanitizeDigits(refInput.value);
       if (refInput.value !== clean) refInput.value = clean;
+    });
+
+    // --- Accessibility logic ---
+    accessibilityBtn.addEventListener('click', (e) => {
+      const isOpen = accessibilityMenu.style.display === 'block';
+      accessibilityMenu.style.display = isOpen ? 'none' : 'block';
+      accessibilityBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      accessibilityMenu.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+    });
+
+    // Increase Text Size toggle (cycles: normal -> large -> extra-large)
+    let textSizeState = 0; // 0 normal, 1 large, 2 xlarge
+    increaseTextBtn.addEventListener('click', () => {
+      textSizeState = (textSizeState + 1) % 3;
+      document.body.classList.remove('large-text', 'xlarge-text');
+      if (textSizeState === 1) {
+        document.body.classList.add('large-text');
+      } else if (textSizeState === 2) {
+        document.body.classList.add('xlarge-text');
+        // define xlarge quickly
+        document.body.style.fontSize = '1.25rem';
+      } else {
+        // reset
+        document.body.style.fontSize = '';
+      }
+      increaseTextBtn.innerText = textSizeState === 0 ? 'Increase Text Size' : textSizeState === 1 ? 'Increase Text Size (larger)' : 'Increase Text Size (largest)';
+    });
+
+    // Read Aloud - speaks page title and info box
+    readAloudBtn.addEventListener('click', () => {
+      const synth = window.speechSynthesis;
+      if (!synth) {
+        alert('Speech synthesis not supported in this browser.');
+        return;
+      }
+      // cancel any previous
+      synth.cancel();
+      const pieces = [];
+      if (pageTitle && pageTitle.innerText) pieces.push(pageTitle.innerText);
+      if (infoBox && infoBox.innerText) pieces.push(infoBox.innerText);
+      const utter = new SpeechSynthesisUtterance(pieces.join('. '));
+      utter.rate = 1;
+      utter.pitch = 1;
+      synth.speak(utter);
+    });
+
+    // Speech to Text - basic digits capture for #refInput
+    let recognition = null;
+    let recognizing = false;
+    speechToTextBtn.addEventListener('click', () => {
+      // Toggle recognition on/off
+      if (recognizing) {
+        try { recognition.stop(); } catch (e) {}
+        recognizing = false;
+        speechToTextBtn.innerText = 'Speech to Text';
+        return;
+      }
+
+      // Setup recognition if available
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Speech recognition not supported in this browser.');
+        return;
+      }
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        recognizing = true;
+        speechToTextBtn.innerText = 'Stop Speech';
+      };
+      recognition.onresult = (ev) => {
+        const transcript = ev.results[0][0].transcript || '';
+        // Extract digits only and set to input
+        const digits = (transcript || '').replace(/\D+/g, '');
+        if (digits) {
+          refInput.value = digits;
+          // optionally run checkStatus automatically when digits found
+          // checkStatus();
+        } else {
+          // if no digits, show short message
+          infoBox.innerHTML = `<p class="text-warning">No digits detected from speech.</p>`;
+        }
+      };
+      recognition.onerror = (ev) => {
+        console.warn('Speech recognition error', ev);
+        infoBox.innerHTML = `<p class="text-danger">Speech recognition error: ${ev.error}</p>`;
+      };
+      recognition.onend = () => {
+        recognizing = false;
+        speechToTextBtn.innerText = 'Speech to Text';
+      };
+      try { recognition.start(); } catch (e) { console.warn(e); }
+    });
+
+    // keyboard accessibility: open menu with keyboard (focus on btn)
+    accessibilityBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        accessibilityBtn.click();
+      } else if (e.key === 'Escape') {
+        accessibilityMenu.style.display = 'none';
+        accessibilityMenu.setAttribute('aria-hidden','true');
+        accessibilityBtn.setAttribute('aria-expanded','false');
+      }
     });
   </script>
 </body>
