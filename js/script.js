@@ -205,28 +205,28 @@ function template_FORM1_COMMON(purposeLabel = 'PURPOSE') {
   return `
         <div class="mb-3">
           <label class="form-label" for="purpose">${purposeLabel}</label>
-          <input id="purpose" name="purpose" type="text" class="form-control" autocomplete="off"required>
+          <input id="purpose" name="purpose" type="text" class="form-control" required>
         </div>
         <div class="mb-3">
           <label class="form-label" for="fullName">FULL NAME</label>
-          <input id="fullName" name="fullName" type="text" class="form-control uppercase-required" placeholder="" autocomplete="off" required>
+          <input id="fullName" name="fullName" type="text" class="form-control uppercase-required" placeholder="" required>
         </div>
         <div class="mb-3">
           <label class="form-label" for="address">ADDRESS</label>
-          <input id="address" name="address" type="text" class="form-control uppercase-required" placeholder="" autocomplete="off" required>
+          <input id="address" name="address" type="text" class="form-control uppercase-required" placeholder="" required>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label" for="date">DATE</label>
-            <input id="date" name="date" type="date" class="form-control" autocomplete="off" required>
+            <input id="date" name="date" type="date" class="form-control" required>
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label" for="age">AGE</label>
-            <input id="age" name="age" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="age" autocomplete="off" required>
+            <input id="age" name="age" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="age" required>
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label" for="civilStatus">CIVIL STATUS</label>
-            <select id="civilStatus" name="civilStatus" class="form-select" autocomplete="off" required>
+            <select id="civilStatus" name="civilStatus" class="form-select" required>
               <option value="">-- choose --</option>
               <option>Single</option>
               <option>Married</option>
@@ -240,22 +240,22 @@ function template_FORM1_COMMON(purposeLabel = 'PURPOSE') {
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label" for="bday">B-DAY</label>
-            <input id="bday" name="bday" type="date" class="form-control" autocomplete="off" required>
+            <input id="bday" name="bday" type="date" class="form-control" required>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">LENGTH OF STAY IN BRGY UGONG</label>
-            <input id="lengthOfStay" name="lengthOfStay" type="text" class="form-control" autocomplete="off" required>
+            <input id="lengthOfStay" name="lengthOfStay" type="text" class="form-control" required>
           </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label d-block">SEX</label>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="sex" id="sexMale" value="Male" autocomplete="off" required>
+            <input class="form-check-input" type="radio" name="sex" id="sexMale" value="Male" required>
             <label class="form-check-label" for="sexMale">Male</label>
           </div>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="sex" id="sexFemale" value="Female" autocomplete="off" required>
+            <input class="form-check-input" type="radio" name="sex" id="sexFemale" value="Female" required>
             <label class="form-check-label" for="sexFemale">Female</label>
           </div>
         </div>
@@ -263,11 +263,11 @@ function template_FORM1_COMMON(purposeLabel = 'PURPOSE') {
         <h6 class="fw-bold mt-3">FOR REPRESENTATIVE (OPTIONAL)</h6>
         <div class="mb-3">
           <label class="form-label" for="repName">NAME</label>
-          <input id="repName" name="repName" type="text" class="form-control uppercase-optional" placeholder="optional" autocomplete="off">
+          <input id="repName" name="repName" type="text" class="form-control uppercase-optional" placeholder="optional">
         </div>
         <div class="mb-3">
           <label class="form-label" for="repRel">RELATIONSHIP TO APPLICANT</label>
-          <input id="repRel" name="repRel" type="text" class="form-control uppercase-optional" placeholder="optional" autocomplete="off">
+          <input id="repRel" name="repRel" type="text" class="form-control uppercase-optional" placeholder="optional">
         </div>
       `;
 }
@@ -278,7 +278,7 @@ function formHTML_FORM1(purposeLabelText = 'PURPOSE') {
         <form id="activeForm" novalidate>
           ${template_FORM1_COMMON(purposeLabelText)}
           <div class="mt-3">
-            <div id="formError" class="text-danger mb-2" style="display:none;">Fill autocomplete="off" required fields with valid data!</div>
+            <div id="formError" class="text-danger mb-2" style="display:none;">Fill required fields with valid data!</div>
             <button type="submit" class="btn btn-primary w-100 mt-2">Submit Request</button>
           </div>
         </form>
@@ -291,27 +291,27 @@ function formHTML_FORM2_CONSTRUCTION() {
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="date2">DATE</label>
-            <input id="date2" name="date" type="date" class="form-control"autocomplete="off" required>
+            <input id="date2" name="date" type="date" class="form-control" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label" for="ownerName">NAME OF OWNER</label>
-            <input id="ownerName" name="ownerName" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="ownerName" name="ownerName" type="text" class="form-control uppercase-required" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label" for="ownerAddress">ADDRESS</label>
-            <input id="ownerAddress" name="ownerAddress" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="ownerAddress" name="ownerAddress" type="text" class="form-control uppercase-required" required>
           </div>
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label" for="repName2">NAME OF REPRESENTATIVE</label>
-              <input id="repName2" name="repName2" type="text" class="form-control uppercase-required" autocomplete="off" required>
+              <input id="repName2" name="repName2" type="text" class="form-control uppercase-required" required>
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label" for="position">POSITION</label>
-              <input id="position" name="position" type="text" class="form-control uppercase-required" autocomplete="off" required>
+              <input id="position" name="position" type="text" class="form-control uppercase-required" required>
             </div>
           </div>
 
@@ -319,8 +319,7 @@ function formHTML_FORM2_CONSTRUCTION() {
   <label class="form-label" for="contactNum">CONTACT#</label>
   <div class="input-group">
     <span class="input-group-text">+63</span>
-    <input id="contactNum" name="contactNum" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="912 452 1234" autocomplete="off" required autocomplete="off
-    " maxlength="12">
+    <input id="contactNum" name="contactNum" type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="912 452 1234" required autocomplete="tel" maxlength="12">
   </div>
   <div class="form-text">Enter 10 digits only (mobile format). Spaces will be added automatically.</div>
 </div>
@@ -329,33 +328,33 @@ function formHTML_FORM2_CONSTRUCTION() {
             <label class="form-label">TYPE OF CONSTRUCTION <small class="text-muted">(select at least one)</small></label>
             <div id="constructionTypes">
               <div class="form-check mb-2">
-                <input class="form-check-input cons-check" type="checkbox" id="consNew" name="consType" value="New" autocomplete="off">
+                <input class="form-check-input cons-check" type="checkbox" id="consNew" name="consType" value="New">
                 <label class="form-check-label" for="consNew">NEW CONSTRUCTION</label>
-                <input id="consNewSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" autocomplete="off" disabled>
+                <input id="consNewSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
               </div>
 
               <div class="form-check mb-2">
-                <input class="form-check-input cons-check" type="checkbox" id="consRen" name="consType" value="Renovation" autocomplete="off">
+                <input class="form-check-input cons-check" type="checkbox" id="consRen" name="consType" value="Renovation">
                 <label class="form-check-label" for="consRen">RENOVATION</label>
-                <input id="consRenSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" autocomplete="off" disabled>
+                <input id="consRenSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
               </div>
 
               <div class="form-check mb-2">
-                <input class="form-check-input cons-check" type="checkbox" id="consDem" name="consType" autocomplete="off" value="Demolition">
+                <input class="form-check-input cons-check" type="checkbox" id="consDem" name="consType" value="Demolition">
                 <label class="form-check-label" for="consDem">DEMOLITION</label>
-                <input id="consDemSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" autocomplete="off" disabled>
+                <input id="consDemSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
               </div>
 
               <div class="form-check mb-2">
-                <input class="form-check-input cons-check" type="checkbox" id="consExc" name="consType" autocomplete="off" value="Excavation">
+                <input class="form-check-input cons-check" type="checkbox" id="consExc" name="consType" value="Excavation">
                 <label class="form-check-label" for="consExc">EXCAVATION</label>
-                <input id="consExcSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" autocomplete="off" disabled>
+                <input id="consExcSpec" class="form-control mt-2 cons-spec" placeholder="Please specify (if applicable)" disabled>
               </div>
 
               <div class="form-check mb-2">
-                <input class="form-check-input cons-check" type="checkbox" id="consOther" name="consType" autocomplete="off" value="Others">
+                <input class="form-check-input cons-check" type="checkbox" id="consOther" name="consType" value="Others">
                 <label class="form-check-label" for="consOther">OTHERS</label>
-                <input id="consOtherSpec" class="form-control mt-2 cons-spec" placeholder="Please specify" autocomplete="off" disabled>
+                <input id="consOtherSpec" class="form-control mt-2 cons-spec" placeholder="Please specify" disabled>
               </div>
             </div>
           </div>
@@ -375,19 +374,19 @@ function formHTML_FORM2_FACILITIES() {
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="dateF">DATE</label>
-            <input id="dateF" name="date" type="date" class="form-control" autocomplete="off" required>
+            <input id="dateF" name="date" type="date" class="form-control" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="nameOwnerF">NAME OF REQUESTOR</label>
-            <input id="nameOwnerF" name="nameOwnerF" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="nameOwnerF" name="nameOwnerF" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="addressF">ADDRESS</label>
-            <input id="addressF" name="addressF" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="addressF" name="addressF" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="facilityType">FACILITY / PROPERTY TO USE</label>
-            <input id="facilityType" name="facilityType" type="text" class="form-control" autocomplete="off" required>
+            <input id="facilityType" name="facilityType" type="text" class="form-control" required>
           </div>
 
           <div class="mt-3">
@@ -404,27 +403,27 @@ function formHTML_FORM3_KATAR() {
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="complainantName">Complainant Complete Name</label>
-            <input id="complainantName" name="complainantName" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="complainantName" name="complainantName" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="complainantAddress">Complainant Complete Address</label>
-            <input id="complainantAddress" name="complainantAddress" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="complainantAddress" name="complainantAddress" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="respondentName">Respondent Name</label>
-            <input id="respondentName" name="respondentName" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="respondentName" name="respondentName" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="respondentAddress">Respondent Complete Address</label>
-            <input id="respondentAddress" name="respondentAddress" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="respondentAddress" name="respondentAddress" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="complaintType">Type of Complaint</label>
-            <input id="complaintType" name="complaintType" type="text" class="form-control" autocomplete="off" required>
+            <input id="complaintType" name="complaintType" type="text" class="form-control" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="complaintBody">The Complaint Body</label>
-            <textarea id="complaintBody" name="complaintBody" rows="4" class="form-control" autocomplete="off" required></textarea>
+            <textarea id="complaintBody" name="complaintBody" rows="4" class="form-control" required></textarea>
           </div>
 
           <div class="mt-3">
@@ -442,15 +441,15 @@ function formHTML_FORM3_FILEACTION() {
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="ctfaName">Complainant Complete Name</label>
-            <input id="ctfaName" name="ctfaName" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="ctfaName" name="ctfaName" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="ctfaAddress">Complainant Address</label>
-            <input id="ctfaAddress" name="ctfaAddress" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="ctfaAddress" name="ctfaAddress" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="ctfaReason">Reason / Details</label>
-            <textarea id="ctfaReason" name="ctfaReason" rows="4" class="form-control" autocomplete="off" required></textarea>
+            <textarea id="ctfaReason" name="ctfaReason" rows="4" class="form-control" required></textarea>
           </div>
 
           <div class="mt-3">
@@ -468,15 +467,15 @@ function formHTML_FORM3_BPO() {
         <form id="activeForm" novalidate>
           <div class="mb-3">
             <label class="form-label" for="bpoName">Requestor Full Name</label>
-            <input id="bpoName" name="bpoName" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="bpoName" name="bpoName" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="bpoAddress">Requestor Address</label>
-            <input id="bpoAddress" name="bpoAddress" type="text" class="form-control uppercase-required" autocomplete="off" required>
+            <input id="bpoAddress" name="bpoAddress" type="text" class="form-control uppercase-required" required>
           </div>
           <div class="mb-3">
             <label class="form-label" for="bpoDetails">Details / Reason</label>
-            <textarea id="bpoDetails" name="bpoDetails" rows="4" class="form-control" autocomplete="off" required></textarea>
+            <textarea id="bpoDetails" name="bpoDetails" rows="4" class="form-control" required></textarea>
           </div>
 
           <div class="mt-3">
@@ -1064,7 +1063,6 @@ function showSummary(formEl) {
     setTimeout(() => {
       document.getElementById('printingOverlay').style.display = 'none';
       summaryModal.hide();
-      window.location.href = 'index.html'; // Redirect to index.html
       formEl.reset();
       console.log('Submission printed. Reference:', ref);
     }, 3000);
