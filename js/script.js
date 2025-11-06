@@ -44,7 +44,8 @@ function focusFirstInvalid(invalidElements) {
     first.focus({ preventScroll: true });
 }
 
-// ---------- Templates ----------
+
+
 // ---------- Templates ----------
 function template_FORM1_COMMON(purposeLabel = 'PURPOSE:') {
     // shared among various Form 1 variants

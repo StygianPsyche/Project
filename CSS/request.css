@@ -1,0 +1,48 @@
+/* Increase font sizes for better readability */
+body {
+  font-size: 20rem;
+  /* Set a larger base font size for general text */
+}
+
+.container {
+  font-size: 18px;
+  /* Ensure container text is large enough */
+}
+
+h5 {
+  font-size: 30px;
+  /* Larger text for headers */
+}
+
+.form-select {
+  font-size: 25px;
+  /* Larger dropdown font */
+  padding: 12px;
+  /* Increase padding for better touch */
+}
+
+.form-select option {
+  font-size: 25px;
+  /* Larger options in the dropdown */
+}
+
+.card {
+  font-size: 25px;
+  /* Increase card text font */
+}
+
+/* Adjust text field size */
+.txtfield {
+  font-size: 5rem;
+  /* Increase text size for readability */
+  padding: 12px;
+  /* Add padding for easier typing */
+  width: 100%;
+  /* Make the text field full-width */
+  height: 60px;
+  /* Increase the height for better interaction */
+  border: 1px solid #ccc;
+  /* Add a light border */
+  border-radius: 8px;
+  /* Rounded corners */
+}
