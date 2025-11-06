@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,10 +11,11 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
+  <link rel="stylesheet" href="CSS/status.css" />
   <link rel="stylesheet" href="CSS/keyboard.css" />
 
   <style>
-    /* simple mic button style (if not in your keyboard.css) */
+    /* Simple mic button style */
     .mic-btn {
       background-color: #f5f5f5;
       font-size: 20px;
@@ -27,42 +29,82 @@
       justify-content: center;
       margin-bottom: 8px;
     }
+
     .mic-btn.active {
       background-color: #dcfce7;
       border-color: #2f855a;
       box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.12);
     }
-    #keyboard { display: none; } /* keep hidden until needed */
-    #keyboardLayout { display:flex; flex-wrap:wrap; gap:6px; }
-    .keyboard-button { padding:10px 12px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+
+    #keyboard {
+      display: none;
+    }
+
+    /* On-screen keyboard styling */
+    #keyboardLayout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .keyboard-button {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* Center content vertically */
+    .centered {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Adjusting the width and positioning */
+    .form-container {
+      margin-top: 50px;
+    }
+
+    .btn-outline-primary {
+      width: 200px;
+    }
   </style>
 </head>
+
 <body class="bg-light">
 
   <div class="container py-5">
-    <div class="row justify-content-center align-items-center g-4">
 
-      <!-- LEFT SIDE - REFERENCE NUMBER INPUT -->
-      <div class="col-md-4">
-        <div class="card shadow-sm p-4 text-center">
-          <h5 class="fw-bold mb-3">Enter Reference Number</h5>
-          <!-- Reference number input field (only numbers allowed) -->
-          <input type="number" id="refInput" class="form-control mb-3 text-center fs-5" placeholder="Enter Reference Number" min="1">
-        </div>
-      </div>
+    <div class="row justify-content-center align-items-center g-4 form-container">
 
-      <!-- RIGHT SIDE - INFO -->
+      <!-- RIGHT SIDE - INFO (Check Request Status) -->
       <div class="col-md-6">
-        <div class="card shadow-sm p-4">
+        <div id="info" class="card shadow-sm p-4">
           <h4 class="fw-bold mb-3 text-center">Check Request Status</h4>
 
           <div id="infoBox" class="info-box p-3 text-muted">
-            <p>Enter your reference number above and press Enter to check the status.</p>
+            <p>Enter your reference number below and press Enter to check the status.</p>
           </div>
         </div>
       </div>
 
     </div>
+
+    <!-- LEFT SIDE - REFERENCE NUMBER INPUT (Moved below the status section) -->
+    <div class="row justify-content-center g-4">
+      <div class="col-md-6">
+        <div id="input" class="card shadow-sm p-4 text-center">
+          <h5 class="fw-bold mb-3">Enter Reference Number</h5>
+          <!-- Reference number input field (only numbers allowed) -->
+          <input type="number" id="refInput" class="form-control mb-3 text-center fs-5"
+            placeholder="Enter Reference Number" min="1">
+        </div>
+      </div>
+    </div>
+
     <!-- Back to Home Button centered -->
     <div class="text-center mt-4">
       <button class="btn btn-outline-primary px-4" onclick="window.location.href='index.html'">← Back to Home</button>
@@ -86,9 +128,9 @@
       <button class="keyboard-button" data-key="7">7</button>
       <button class="keyboard-button" data-key="8">8</button>
       <button class="keyboard-button" data-key="9">9</button>
+      <button class="keyboard-button" data-key="enter">Enter</button>
       <button class="keyboard-button" data-key="0">0</button>
-      <button class="keyboard-button" data-key="clear">Clr</button>
-      <button class="keyboard-button" data-key="enter">Entr</button>
+      <button class="keyboard-button" data-key="clear">Clear</button>
     </div>
   </div>
 
@@ -113,7 +155,7 @@
         let statusMessage = "";
 
         // Define the responses based on reference number
-        switch(ref) {
+        switch (ref) {
           case "1":
             statusMessage = `
               <h6 class="fw-bold text-info">Status: On Queue</h6>
@@ -204,4 +246,5 @@
     });
   </script>
 </body>
+
 </html>

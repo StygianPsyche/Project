@@ -1,0 +1,127 @@
+  /* Adjusting the size of the card with the white background */
+  /* Font size adjustments in pixels */
+
+  /* Adjusting the font size for the header in 'Check Request Status' */
+  .card h4 {
+    font-size: 25px;
+    /* Adjusted header font size */
+  }
+
+  /* Adjusting the font size for the 'Enter Reference Number' label */
+  .card h5 {
+    font-size: 25px;
+    /* Adjusted sub-header font size */
+  }
+
+  /* Adjusting the font size of the input field for reference number */
+  #refInput {
+    font-size: 25px;
+    /* Adjusted font size for the input field */
+  }
+
+  /* Adjusting the font size for the paragraphs in the info box */
+  .info-box p {
+    font-size: 20px;
+    /* Adjusted font size for info text */
+  }
+
+  /* Mic button font size */
+  .mic-btn {
+    font-size: 20px;
+    /* Adjusted font size for the mic button */
+  }
+
+  /* Adjusting the font size of keyboard button */
+  .keyboard-button {
+    font-size: 20px;
+    /* Adjusted font size for keyboard buttons */
+  }
+
+  /* Change font size of status messages */
+  .fw-bold {
+    font-size: 25px;
+    /* Adjusted font size for status titles */
+  }
+
+ /* Keyboard container styling */
+#keyboard {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 15px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout of keyboard keys */
+#keyboardLayout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Adjust for better responsiveness */
+  gap: 12px; /* Increase gap between buttons */
+  justify-items: center;
+  padding: 10px;
+}
+
+/* Keyboard button styling */
+.keyboard-button {
+  padding: 18px 20px; /* Adjust button size */
+  font-size: 22px; /* Larger font for better visibility */
+  font-weight: bold;
+  border-radius: 10px; /* Slightly rounded corners */
+  border: 2px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s ease, background-color 0.3s ease;
+  width: 300px; /* Fixed width for uniform buttons */
+  height: 70px; /* Fixed height to make buttons consistent */
+}
+
+.keyboard-button:active {
+  transform: scale(0.95); /* Button shrink effect when clicked */
+  background-color: #f0f0f0; /* Light grey on click */
+}
+
+/* Special button colors */
+.keyboard-button.clear {
+  background-color: #ffeb3b; /* Yellow background for 'clear' button */
+}
+
+.keyboard-button.enter {
+  background-color: #4caf50; /* Green background for 'enter' button */
+  color: white; /* White text on 'enter' button */
+}
+
+/* Container for reference input and status */
+.form-container {
+  margin-top: 50px;
+}
+
+/* Centered back-to-home button */
+.btn-outline-primary {
+  width: 200px;
+  font-size: 1.1rem; /* Adjust font size for better readability */
+  padding: 10px 20px; /* Adjust padding for better button sizing */
+  margin-top: 10px; /* Ensure spacing from other elements */
+}
+
+/* Centering content */
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Add padding and adjust the font size of input fields */
+.form-control {
+  padding: 10px;
+  font-size: 1.2rem;
+  width: 100%; /* Ensure input takes up full width */
+}
+
+/* Optional: Adjust the mic button */
+.mic-btn {
+  font-size: 24px; /* Larger mic icon */
+  padding: 12px 15px; /* Increase size for easier clicking */
+}
