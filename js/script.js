@@ -34,31 +34,29 @@ function focusFirstInvalid(invalidElements) {
   try { first.focus({ preventScroll: true }); } catch { first.focus(); }
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
   // Initialize the date picker after the DOM is ready
   initializeDatePickers();
 });
 
 function initializeDatePickers() {
-  // Target only input fields that should have a date picker (use class or ID)
   flatpickr("input[type='date']", {
     static: true,   // Makes the calendar appear as a static popup instead of a dropdown
     locale: "en",   // Set the locale if needed (optional)
     dateFormat: "m/d/Y", // Set your date format (e.g., mm/dd/yyyy)
     position: "auto", // Position the calendar popup automatically
+
+    // onReady is called after the calendar is initialized
     onReady: function (selectedDates, dateStr, instance) {
+      const calendar = instance.calendarContainer; // Get the calendar container
+      const dateInput = instance.input;  // Get the input field that triggered the calendar
+
       // Custom style for the calendar popup
-      const calendar = instance.calendarContainer;
       calendar.style.width = "400px";  // Set calendar popup width
       calendar.style.height = "450px"; // Set calendar popup height
       calendar.style.overflow = "hidden"; // Prevent overflow and ensure it fits the container
-      calendar.style.display = "flex";
-      calendar.style.flexDirection = "column"; // Arrange calendar elements vertically
 
       // Adjust the width of the date input field
-      const dateInput = instance.input;
       dateInput.style.width = "400px"; // Set your desired width here
 
       // Ensure the internal elements (month, year, and days) adjust accordingly
@@ -77,14 +75,27 @@ function initializeDatePickers() {
         monthNav.style.display = "flex";
         monthNav.style.justifyContent = "center";  // Centers the content horizontally
         monthNav.style.alignItems = "center";  // Centers the content vertically
+
+        // Hide the year input box (up/down arrows)
+        const yearElement = monthNav.querySelector('.flatpickr-year');
+        if (yearElement) {
+          yearElement.style.display = "none";  // Hide the native year input field
+        }
+
+        // Add event listener to year to display a list of years when clicked
+        const yearLabel = monthNav.querySelector('.flatpickr-current-month');
+        yearLabel.addEventListener('click', function() {
+          showYearDropdown(instance, yearLabel);  // Show the year dropdown when the year is clicked
+        });
+
+        // Hide the arrow buttons (if you don't need them)
+        const arrowButtons = monthNav.querySelectorAll('.flatpickr-prev-month, .flatpickr-next-month');
+        arrowButtons.forEach(button => button.style.display = 'none');
       }
 
       // Adjust the size of the days container and cells to fit the new calendar size
       daysContainer.style.fontSize = "25px"; // Adjust text size of days
-      daysContainer.style.display = "flex";
-      daysContainer.style.flexWrap = "wrap";  // Ensure it wraps to multiple rows
-      daysContainer.style.justifyContent = "center"; // Center the days grid horizontally
-      daysContainer.style.alignItems = "center"; // Center the days grid vertically
+      daysContainer.style.gridTemplateColumns = "repeat(7, 1fr)"; // Make sure the days grid fits well in 400px width
 
       // Adjust the size of the individual day cells
       dayCells.forEach(day => {
@@ -93,30 +104,83 @@ function initializeDatePickers() {
         day.style.width = "60px";  // Set a fixed width for day cells
         day.style.lineHeight = "60px"; // Vertically center the text inside day cells
         day.style.textAlign = "center"; // Center the text horizontally inside each day cell
-
-        // Flex properties for each day cell to center the content
-        day.style.display = "flex";
-        day.style.justifyContent = "center"; // Center content horizontally inside each day cell
-        day.style.alignItems = "center"; // Center content vertically inside each day cell
       });
 
-      // Adjust the padding and margins for better fit and alignment
-      const arrowButtons = calendar.querySelectorAll('.flatpickr-prev-month, .flatpickr-next-month');
-      arrowButtons.forEach(button => {
-        button.style.fontSize = "25px"; // Adjust the size of the navigation arrows if needed
-        button.style.height = "60px"; // Make the arrow buttons have the same height as the day cells
-        button.style.lineHeight = "60px"; // Center the arrows vertically
+      // Ensure the calendar stays open while interacting with it
+      dateInput.addEventListener('focus', function () {
+        calendar.style.display = "block";  // Ensure the calendar stays open on focus
       });
 
-      // Optionally, adjust the month navigation buttons to ensure they fit within the width
-      const navigation = calendar.querySelector('.flatpickr-months');
-      if (navigation) {
-        navigation.style.height = "60px"; // Align the navigation bar with the day cells height
-        navigation.style.display = "flex";
-        navigation.style.justifyContent = "space-between";  // Ensure space between previous and next month buttons
-      }
+      // Prevent calendar from closing when interacting with input (e.g., selecting date)
+      dateInput.addEventListener('click', function (event) {
+        event.stopPropagation();  // Prevent calendar from closing when clicking on input
+      });
+
+      // Prevent calendar from closing when selecting a date on the calendar (if necessary)
+      calendar.addEventListener('click', function (event) {
+        event.stopPropagation();  // Prevent the calendar from closing on date selection
+      });
     }
   });
+}
+
+// Function to display a list of years
+function showYearDropdown(instance, yearElement) {
+  const calendar = instance.calendarContainer;
+  const yearList = document.createElement('div');
+  yearList.classList.add('year-list');
+
+  // Get the current year and ensure we calculate a range around it
+  const currentYear = new Date().getFullYear();
+
+  for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+    const yearItem = document.createElement('div');
+    yearItem.classList.add('year-item');
+    yearItem.textContent = i;
+
+    // Highlight the current year
+    if (i === currentYear) {
+      yearItem.classList.add('current-year');  // Add a class to highlight the current year
+    }
+
+    // Add click event to set the selected year
+    yearItem.addEventListener('click', function () {
+      const selectedDate = instance.selectedDates[0] || new Date(); // Get the current selected date or use the current date
+      const selectedMonth = selectedDate.getMonth(); // Preserve the current month (0-based)
+      const selectedDay = selectedDate.getDate(); // Preserve the current day
+
+      // Create a new Date object with the selected year and the current month and day
+      const newDate = new Date(i, selectedMonth, selectedDay); // Create a new date with the selected year
+
+      // If the newDate is invalid (like an incorrect date), handle it gracefully
+      if (isNaN(newDate.getTime())) {
+        console.error("Invalid date selected", newDate);
+        return; // Exit if the date is invalid
+      }
+
+      // Update the selected year and close the dropdown
+      instance.setDate(newDate, true); // Set the new date while maintaining the current month and day
+      yearList.style.display = 'none'; // Hide the year list after selection
+    });
+
+    yearList.appendChild(yearItem);
+  }
+
+  // Position the year dropdown just below the year element
+  yearList.style.position = 'absolute';
+  yearList.style.top = `${yearElement.offsetTop + yearElement.offsetHeight}px`;
+  yearList.style.left = `${yearElement.offsetLeft}px`;
+  yearList.style.width = `${yearElement.offsetWidth}px`;
+  calendar.appendChild(yearList);
+
+  // Close the dropdown when clicking outside
+  document.addEventListener('click', function (event) {
+    if (!yearList.contains(event.target) && event.target !== yearElement) {
+      yearList.style.display = 'none';
+    }
+  });
+
+  yearList.style.display = 'block'; // Show the year dropdown
 }
 
 
