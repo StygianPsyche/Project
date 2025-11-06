@@ -4,6 +4,43 @@ body {
   /* Set a larger base font size for general text */
 }
 
+/* Increase textfield size */
+input.form-control,
+textarea.form-control {
+  font-size: 25px;
+  /* Increase font size */
+  padding: 12px;
+  /* Increase padding */
+  height: 50px;
+  /* Increase height for easier typing */
+  width: 100%;
+  /* Full width */
+  border-radius: 8px;
+  /* Rounded corners */
+}
+
+
+/* Ensure that the label and input are aligned vertically */
+.mb-3 {
+  margin-bottom: 1rem;
+  /* space between form elements */
+}
+
+input[type="date"] {
+  width: 100%;
+  /* Make the date input take the full width of its container */
+  display: block;
+  /* Ensures the input takes up a block-level space under the label */
+}
+
+.form-label {
+  display: block;
+  /* Ensures the label takes the full width */
+  margin-bottom: 5px;
+  /* Adds a small space below the label */
+}
+
+
 .container {
   font-size: 18px;
   /* Ensure container text is large enough */
@@ -21,6 +58,7 @@ h5 {
   /* Increase padding for better touch */
 }
 
+
 .form-select option {
   font-size: 25px;
   /* Larger options in the dropdown */
@@ -29,20 +67,4 @@ h5 {
 .card {
   font-size: 25px;
   /* Increase card text font */
-}
-
-/* Adjust text field size */
-.txtfield {
-  font-size: 5rem;
-  /* Increase text size for readability */
-  padding: 12px;
-  /* Add padding for easier typing */
-  width: 100%;
-  /* Make the text field full-width */
-  height: 60px;
-  /* Increase the height for better interaction */
-  border: 1px solid #ccc;
-  /* Add a light border */
-  border-radius: 8px;
-  /* Rounded corners */
 }

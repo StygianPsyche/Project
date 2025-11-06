@@ -36,20 +36,97 @@ function focusFirstInvalid(invalidElements) {
 
 
 
-// find first invalid element and scroll/focus
-function focusFirstInvalid(invalidElements) {
-    if (!invalidElements || invalidElements.length === 0) return;
-    const first = invalidElements[0];
-    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    first.focus({ preventScroll: true });
+document.addEventListener("DOMContentLoaded", function () {
+  // Initialize the date picker after the DOM is ready
+  initializeDatePickers();
+});
+
+function initializeDatePickers() {
+  // Target only input fields that should have a date picker (use class or ID)
+  flatpickr("input[type='date']", {
+    static: true,   // Makes the calendar appear as a static popup instead of a dropdown
+    locale: "en",   // Set the locale if needed (optional)
+    dateFormat: "m/d/Y", // Set your date format (e.g., mm/dd/yyyy)
+    position: "auto", // Position the calendar popup automatically
+    onReady: function (selectedDates, dateStr, instance) {
+      // Custom style for the calendar popup
+      const calendar = instance.calendarContainer;
+      calendar.style.width = "400px";  // Set calendar popup width
+      calendar.style.height = "450px"; // Set calendar popup height
+      calendar.style.overflow = "hidden"; // Prevent overflow and ensure it fits the container
+      calendar.style.display = "flex";
+      calendar.style.flexDirection = "column"; // Arrange calendar elements vertically
+
+      // Adjust the width of the date input field
+      const dateInput = instance.input;
+      dateInput.style.width = "400px"; // Set your desired width here
+
+      // Ensure the internal elements (month, year, and days) adjust accordingly
+      const monthNav = calendar.querySelector('.flatpickr-month'); // Navigation bar for month/year
+      const daysContainer = calendar.querySelector('.flatpickr-days'); // Container for the days grid
+      const dayCells = daysContainer.querySelectorAll('.flatpickr-day'); // Day cells
+
+      // Adjust the font size of the month and year display
+      if (monthNav) {
+        monthNav.style.fontSize = "25px"; // Adjust the font size of month/year text
+        monthNav.style.height = "60px"; // Set a fixed height to match day cells
+        monthNav.style.lineHeight = "60px"; // Vertically center the month text
+        monthNav.style.padding = "0 10px"; // Add some horizontal padding to prevent cutoff
+
+        // Use Flexbox to center the month/year horizontally
+        monthNav.style.display = "flex";
+        monthNav.style.justifyContent = "center";  // Centers the content horizontally
+        monthNav.style.alignItems = "center";  // Centers the content vertically
+      }
+
+      // Adjust the size of the days container and cells to fit the new calendar size
+      daysContainer.style.fontSize = "25px"; // Adjust text size of days
+      daysContainer.style.display = "flex";
+      daysContainer.style.flexWrap = "wrap";  // Ensure it wraps to multiple rows
+      daysContainer.style.justifyContent = "center"; // Center the days grid horizontally
+      daysContainer.style.alignItems = "center"; // Center the days grid vertically
+
+      // Adjust the size of the individual day cells
+      dayCells.forEach(day => {
+        day.style.fontSize = "18px"; // Set the font size of the days inside the calendar
+        day.style.height = "60px"; // Set a fixed height for day cells
+        day.style.width = "60px";  // Set a fixed width for day cells
+        day.style.lineHeight = "60px"; // Vertically center the text inside day cells
+        day.style.textAlign = "center"; // Center the text horizontally inside each day cell
+
+        // Flex properties for each day cell to center the content
+        day.style.display = "flex";
+        day.style.justifyContent = "center"; // Center content horizontally inside each day cell
+        day.style.alignItems = "center"; // Center content vertically inside each day cell
+      });
+
+      // Adjust the padding and margins for better fit and alignment
+      const arrowButtons = calendar.querySelectorAll('.flatpickr-prev-month, .flatpickr-next-month');
+      arrowButtons.forEach(button => {
+        button.style.fontSize = "25px"; // Adjust the size of the navigation arrows if needed
+        button.style.height = "60px"; // Make the arrow buttons have the same height as the day cells
+        button.style.lineHeight = "60px"; // Center the arrows vertically
+      });
+
+      // Optionally, adjust the month navigation buttons to ensure they fit within the width
+      const navigation = calendar.querySelector('.flatpickr-months');
+      if (navigation) {
+        navigation.style.height = "60px"; // Align the navigation bar with the day cells height
+        navigation.style.display = "flex";
+        navigation.style.justifyContent = "space-between";  // Ensure space between previous and next month buttons
+      }
+    }
+  });
 }
 
 
 
+
+
 // ---------- Templates ----------
-function template_FORM1_COMMON(purposeLabel = 'PURPOSE:') {
-    // shared among various Form 1 variants
-    return `
+function template_FORM1_COMMON(purposeLabel = 'PURPOSE') {
+  // shared among various Form 1 variants
+  return `
         <div class="mb-3">
           <label class="form-label" for="purpose">${purposeLabel}</label>
           <input id="purpose" name="purpose" type="text" class="form-control" required>
@@ -119,8 +196,8 @@ function template_FORM1_COMMON(purposeLabel = 'PURPOSE:') {
       `;
 }
 
-function formHTML_FORM1(purposeLabelText = 'PURPOSE:') {
-    return `
+function formHTML_FORM1(purposeLabelText = 'PURPOSE') {
+  return `
         
         <form id="activeForm" novalidate>
           ${template_FORM1_COMMON(purposeLabelText)}
@@ -133,7 +210,7 @@ function formHTML_FORM1(purposeLabelText = 'PURPOSE:') {
 }
 
 function formHTML_FORM2_CONSTRUCTION() {
-    return `
+  return `
        
         <form id="activeForm" novalidate>
           <div class="mb-3">
@@ -215,8 +292,8 @@ function formHTML_FORM2_CONSTRUCTION() {
 }
 
 function formHTML_FORM2_FACILITIES() {
-    // simpler facility usage form (Form 2 variant)
-    return `
+  // simpler facility usage form (Form 2 variant)
+  return `
       
         <form id="activeForm" novalidate>
           <div class="mb-3">
@@ -245,7 +322,7 @@ function formHTML_FORM2_FACILITIES() {
 }
 
 function formHTML_FORM3_KATAR() {
-    return `
+  return `
        
         <form id="activeForm" novalidate>
           <div class="mb-3">
@@ -282,8 +359,8 @@ function formHTML_FORM3_KATAR() {
 }
 
 function formHTML_FORM3_FILEACTION() {
-    // Certificate to File Action (Form 3)
-    return `
+  // Certificate to File Action (Form 3)
+  return `
        
         <form id="activeForm" novalidate>
           <div class="mb-3">
@@ -308,8 +385,8 @@ function formHTML_FORM3_FILEACTION() {
 }
 
 function formHTML_FORM3_BPO() {
-    // Barangay Protection Order
-    return `
+  // Barangay Protection Order
+  return `
        
         <form id="activeForm" novalidate>
           <div class="mb-3">
@@ -341,15 +418,15 @@ function renderSelectedForm() {
   switch (val) {
     case 'form1_cert':
       titleText = 'Issuance of Barangay Certificate';
-      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE');
       break;
     case 'form1_clear':
       titleText = 'Barangay Clearance';
-      formContainer.innerHTML = formHTML_FORM1('PURPOSE:');
+      formContainer.innerHTML = formHTML_FORM1('PURPOSE');
       break;
     case 'form1_bus':
       titleText = 'Barangay Business Clearance';
-      formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE:');
+      formContainer.innerHTML = formHTML_FORM1('BUSINESS PURPOSE');
       break;
     case 'form2_cons':
       titleText = 'Issuance of Construction, Work, Advertisement, Signage, and Events Clearance';
@@ -381,6 +458,7 @@ function renderSelectedForm() {
 
   // Reinitialize form behaviors
   initFormBehaviors();
+  initializeDatePickers();
 }
 
 
@@ -483,8 +561,8 @@ function formatPHNumber(digits) {
   const d = (digits || '').replace(/\D/g, '').slice(0, 10);
   if (!d) return '';
   if (d.length <= 3) return d;
-  if (d.length <= 6) return `${d.slice(0,3)} ${d.slice(3)}`;
-  return `${d.slice(0,3)} ${d.slice(3,6)} ${d.slice(6)}`;
+  if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
+  return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
 }
 
 
@@ -500,7 +578,7 @@ function initFormBehaviors() {
 
   // Remove potential previous listeners before re-binding (idempotent)
   // remove document click handler if present
-    if (_globalDocClickHandler) {
+  if (_globalDocClickHandler) {
     document.removeEventListener('mousedown', _globalDocClickHandler);
     _globalDocClickHandler = null;
   }
@@ -543,7 +621,7 @@ function initFormBehaviors() {
   };
   document.addEventListener('focusout', _focusOutHandler);
 
-    // Global hide handler — use mousedown and check activeElement to avoid races/blinks
+  // Global hide handler — use mousedown and check activeElement to avoid races/blinks
   _globalDocClickHandler = (e) => {
     const target = e.target;
 
@@ -554,7 +632,7 @@ function initFormBehaviors() {
     // If an input inside the form is currently focused, do not hide (avoids race when focus changes)
     const active = document.activeElement;
     if (active && activeForm && activeForm.contains(active) &&
-        (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+      (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
       return;
     }
 
@@ -632,18 +710,18 @@ function initFormBehaviors() {
     button.removeEventListener('click', _keyboardKeyHandler);
     button.addEventListener('click', _keyboardKeyHandler);
   });
-// mic button toggle (visual only - you can hook real recognition later)
-const mic = document.getElementById('micBtn');
-if (mic) {
-  mic.removeEventListener('click', mic._handler);
-  mic._handler = function () {
-    mic.classList.toggle('active');
-    // optional UI feedback: keep keyboard visible when mic active
-    keyboard.style.display = 'block';
-    // you can add actual speech-to-text start/stop here later
-  };
-  mic.addEventListener('click', mic._handler);
-}
+  // mic button toggle (visual only - you can hook real recognition later)
+  const mic = document.getElementById('micBtn');
+  if (mic) {
+    mic.removeEventListener('click', mic._handler);
+    mic._handler = function () {
+      mic.classList.toggle('active');
+      // optional UI feedback: keep keyboard visible when mic active
+      keyboard.style.display = 'block';
+      // you can add actual speech-to-text start/stop here later
+    };
+    mic.addEventListener('click', mic._handler);
+  }
 
 
   // numeric-only + auto-format for PH mobile number (10 digits, displayed as "xxx xxx xxxx")
@@ -717,7 +795,7 @@ if (mic) {
   activeForm.addEventListener('submit', handleFormSubmitWrapped);
 
 
- // auto-age wiring
+  // auto-age wiring
   wireAutoAge();
 
 
