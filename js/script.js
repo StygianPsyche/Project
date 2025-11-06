@@ -133,7 +133,8 @@ function showYearDropdown(instance, yearElement) {
   // Get the current year and ensure we calculate a range around it
   const currentYear = new Date().getFullYear();
 
-  for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+  // Add the year items to the dropdown
+  for (let i = currentYear - 120; i <= currentYear + 5; i++) {
     const yearItem = document.createElement('div');
     yearItem.classList.add('year-item');
     yearItem.textContent = i;
@@ -145,6 +146,7 @@ function showYearDropdown(instance, yearElement) {
 
     // Add click event to set the selected year
     yearItem.addEventListener('click', function () {
+      // Set the new date with the selected year, maintaining the current month and day
       const selectedDate = instance.selectedDates[0] || new Date(); // Get the current selected date or use the current date
       const selectedMonth = selectedDate.getMonth(); // Preserve the current month (0-based)
       const selectedDay = selectedDate.getDate(); // Preserve the current day
@@ -152,15 +154,12 @@ function showYearDropdown(instance, yearElement) {
       // Create a new Date object with the selected year and the current month and day
       const newDate = new Date(i, selectedMonth, selectedDay); // Create a new date with the selected year
 
-      // If the newDate is invalid (like an incorrect date), handle it gracefully
-      if (isNaN(newDate.getTime())) {
-        console.error("Invalid date selected", newDate);
-        return; // Exit if the date is invalid
-      }
-
       // Update the selected year and close the dropdown
       instance.setDate(newDate, true); // Set the new date while maintaining the current month and day
       yearList.style.display = 'none'; // Hide the year list after selection
+
+      // Reapply the `current-year` style to the selected year
+      updateCurrentYearHighlight(yearList, i);
     });
 
     yearList.appendChild(yearItem);
@@ -181,9 +180,22 @@ function showYearDropdown(instance, yearElement) {
   });
 
   yearList.style.display = 'block'; // Show the year dropdown
+
+  // Reapply the current-year class to the selected year after clicking
+  updateCurrentYearHighlight(yearList, currentYear);
 }
 
-
+// Update current-year highlight when a year is selected
+function updateCurrentYearHighlight(yearList, currentYear) {
+  const yearItems = yearList.querySelectorAll('.year-item');
+  yearItems.forEach(item => {
+    if (item.textContent == currentYear) {
+      item.classList.add('current-year'); // Ensure the current year is highlighted
+    } else {
+      item.classList.remove('current-year'); // Remove highlight from other years
+    }
+  });
+}
 
 
 
