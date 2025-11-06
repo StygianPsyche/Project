@@ -43,13 +43,13 @@
     /* Adjusted font size for status titles */
   }
 
- /* Keyboard container styling */
+ /* Keyboard container styling #f8f9fa */
 #keyboard {
   display: none;
   position: fixed;
   bottom: 0;
   width: 100%;
-  background-color: #f8f9fa;
+  background-color: black;
   padding: 15px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
