@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,17 +11,16 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="CSS/style.css" />
-  <link rel="stylesheet" href="CSS/numpad.css" />
+  <link rel="stylesheet" href="CSS/status.css" />
+  <link rel="stylesheet" href="CSS/keyboard.css" />
 
   <style>
-    /* accessibility floating button & menu */
-    .accessibility-btn {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 2000;
-      width: 52px;
-      height: 52px;
+    /* Simple mic button style */
+    .mic-btn {
+      background-color: #f5f5f5;
+      font-size: 20px;
+      color: #333;
+      cursor: pointer;
       border-radius: 50%;
       background: #0d6efd;
       color: #fff;
@@ -31,86 +31,80 @@
       border: none;
       cursor: pointer;
     }
-    .accessibility-menu {
-      position: fixed;
-      right: 18px;
-      bottom: 82px;
-      z-index: 2000;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      padding: 8px;
-      display: none;
-      min-width: 200px;
+
+    .mic-btn.active {
+      background-color: #dcfce7;
+      border-color: #2f855a;
+      box-shadow: 0 0 0 4px rgba(72, 187, 120, 0.12);
     }
-    .accessibility-menu button {
+
+    #keyboard {
+      display: none;
+    }
+
+    /* On-screen keyboard styling */
+    #keyboardLayout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .keyboard-button {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* Center content vertically */
+    .centered {
       display: flex;
       align-items: center;
-      gap: 8px;
-      width: 100%;
-      padding: 8px 10px;
-      border: 0;
-      background: transparent;
-      text-align: left;
-      cursor: pointer;
-      border-radius: 6px;
-      font-weight: 600;
-    }
-    .accessibility-menu button:focus,
-    .accessibility-menu button:hover {
-      background: rgba(13,110,253,0.06);
+      justify-content: center;
     }
 
-    /* large text mode */
-    body.large-text {
-      font-size: 1.12rem;
-    }
-    body.large-text .card,
-    body.large-text .info-box {
-      font-size: 1.02rem;
+    /* Adjusting the width and positioning */
+    .form-container {
+      margin-top: 50px;
     }
 
-    /* ensure numpad sits above accessibility menu */
-    #keyboard { z-index: 1500; }
-
-    /* small helper for visually-hidden text (a11y) */
-    .sr-only { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .btn-outline-primary {
+      width: 200px;
+    }
   </style>
 </head>
+
 <body class="bg-light">
 
   <div class="container py-5">
-    <div class="row justify-content-center align-items-center g-4">
 
-      <!-- LEFT SIDE - REFERENCE NUMBER INPUT -->
-      <div class="col-md-4">
-        <div class="card shadow-sm p-4 text-center">
-          <h5 class="fw-bold mb-3">Enter Reference Number</h5>
-          <input
-            id="refInput"
-            type="text"
-            inputmode="numeric"
-            pattern="\d*"
-            class="form-control mb-3 text-center fs-5"
-            placeholder="Enter Reference Number"
-            maxlength="12"
-            autocomplete="off"
-            aria-label="Reference number input"
-          >
-        </div>
-      </div>
+    <div class="row justify-content-center align-items-center g-4 form-container">
 
-      <!-- RIGHT SIDE - INFO -->
+      <!-- RIGHT SIDE - INFO (Check Request Status) -->
       <div class="col-md-6">
-        <div class="card shadow-sm p-4">
-          <h4 id="pageTitle" class="fw-bold mb-3 text-center">Check Request Status</h4>
+        <div id="info" class="card shadow-sm p-4">
+          <h4 class="fw-bold mb-3 text-center">Check Request Status</h4>
 
-          <div id="infoBox" class="info-box p-3 text-muted" aria-live="polite" role="status">
-            <p>Enter your reference number above and press Enter to check the status.</p>
+          <div id="infoBox" class="info-box p-3 text-muted">
+            <p>Enter your reference number below and press Enter to check the status.</p>
           </div>
         </div>
       </div>
 
+    </div>
+
+    <!-- LEFT SIDE - REFERENCE NUMBER INPUT (Moved below the status section) -->
+    <div class="row justify-content-center g-4">
+      <div class="col-md-6">
+        <div id="input" class="card shadow-sm p-4 text-center">
+          <h5 class="fw-bold mb-3">Enter Reference Number</h5>
+          <!-- Reference number input field (only numbers allowed) -->
+          <input type="number" id="refInput" class="form-control mb-3 text-center fs-5"
+            placeholder="Enter Reference Number" min="1">
+        </div>
+      </div>
     </div>
 
     <!-- Back to Home Button centered -->
@@ -119,24 +113,26 @@
     </div>
   </div>
 
-  <!-- On-screen numeric keypad -->
-  <div id="keyboard" class="numpad" aria-hidden="true" role="application" aria-label="numeric keypad">
-    <div id="keyboardLayout" class="numpad-grid" aria-label="numpad">
-      <button class="keyboard-button" data-key="1" type="button">1</button>
-      <button class="keyboard-button" data-key="2" type="button">2</button>
-      <button class="keyboard-button" data-key="3" type="button">3</button>
+  <!-- On-Screen Keyboard -->
+  <div id="keyboard" class="p-3">
+    <!-- Mic button replacing the checkbox -->
+    <div id="voiceToggle" class="mb-2 text-center">
+      <button class="mic-btn" id="micBtn" title="Toggle voice command">🎤</button>
+    </div>
 
-      <button class="keyboard-button" data-key="4" type="button">4</button>
-      <button class="keyboard-button" data-key="5" type="button">5</button>
-      <button class="keyboard-button" data-key="6" type="button">6</button>
-
-      <button class="keyboard-button" data-key="7" type="button">7</button>
-      <button class="keyboard-button" data-key="8" type="button">8</button>
-      <button class="keyboard-button" data-key="9" type="button">9</button>
-
-      <button class="keyboard-button keyboard-erase" data-key="erase" type="button" aria-label="erase">⌫</button>
-      <button class="keyboard-button" data-key="0" type="button">0</button>
-      <button class="keyboard-button keyboard-enter" data-key="enter" type="button">Entr</button>
+    <div id="keyboardLayout" class="text-center">
+      <button class="keyboard-button" data-key="1">1</button>
+      <button class="keyboard-button" data-key="2">2</button>
+      <button class="keyboard-button" data-key="3">3</button>
+      <button class="keyboard-button" data-key="4">4</button>
+      <button class="keyboard-button" data-key="5">5</button>
+      <button class="keyboard-button" data-key="6">6</button>
+      <button class="keyboard-button" data-key="7">7</button>
+      <button class="keyboard-button" data-key="8">8</button>
+      <button class="keyboard-button" data-key="9">9</button>
+      <button class="keyboard-button" data-key="enter">Enter</button>
+      <button class="keyboard-button" data-key="0">0</button>
+      <button class="keyboard-button" data-key="clear">Clear</button>
     </div>
   </div>
 
@@ -173,62 +169,63 @@
     const readAloudBtn = document.getElementById('readAloud');
     const speechToTextBtn = document.getElementById('speechToText');
 
-    // --- Numpad logic (unchanged behavior) ---
-    const sanitizeDigits = (s) => (s ?? "").toString().replace(/\D+/g, "");
-
-    function checkStatus() {
-      const ref = sanitizeDigits(refInput.value).trim();
-      if (!ref) {
-        infoBox.innerHTML = `<p class='text-warning'>Please enter a reference number.</p>`;
-        return;
-      }
-      let statusMessage = "";
-      switch(ref) {
-        case "1":
-          statusMessage = `<h6 class="fw-bold text-info">Status: On Queue</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
-          break;
-        case "2":
-          statusMessage = `<h6 class="fw-bold text-info">Status: Processing</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
-          break;
-        case "3":
-          statusMessage = `<h6 class="fw-bold text-info">Status: Payment Pending</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
-          break;
-        case "4":
-          statusMessage = `<h6 class="fw-bold text-info">Status: Ready to Pickup</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
-          break;
-        case "5":
-          statusMessage = `<h6 class="fw-bold text-info">Status: Released</h6><p><strong>Date Submitted:</strong> 10/29/2025</p><p><strong>Last Updated:</strong> 10/30/2025</p>`;
-          break;
-        default:
-          statusMessage = `<p class='text-warning'>No record found for Reference No. ${ref}.</p>`;
-      }
-      infoBox.innerHTML = statusMessage;
-      hideKeyboard();
-    }
-
-    function showKeyboard() {
-      keyboard.style.display = "block";
-      keyboard.setAttribute('aria-hidden','false');
-      setTimeout(() => refInput.focus(), 50);
-    }
-    function hideKeyboard() {
-      keyboard.style.display = "none";
-      keyboard.setAttribute('aria-hidden','true');
-    }
-
-    refInput.addEventListener("focus", showKeyboard);
-
+    // Hide the keyboard when Enter is pressed (and show status)
     refInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        event.preventDefault();
-        checkStatus();
-      } else if (event.key === "Escape") {
-        hideKeyboard();
-        refInput.blur();
+        const ref = (refInput.value ?? "").trim();
+        let statusMessage = "";
+
+        // Define the responses based on reference number
+        switch (ref) {
+          case "1":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: On Queue</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "2":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Processing</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "3":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Payment Pending</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "4":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Ready to Pickup</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          case "5":
+            statusMessage = `
+              <h6 class="fw-bold text-info">Status: Released</h6>
+              <p><strong>Date Submitted:</strong> 10/29/2025</p>
+              <p><strong>Last Updated:</strong> 10/30/2025</p>
+            `;
+            break;
+          default:
+            statusMessage = `<p class='text-warning'>No record found for Reference No. ${ref}.</p>`;
+        }
+
+        // Update the infoBox with the status message
+        infoBox.innerHTML = statusMessage;
+
+        // Hide the keyboard
+        keyboard.style.display = "none";
       }
     });
 
-    keyboardLayout.addEventListener("click", (e) => {
+    // Handle keyboard button clicks
+    document.getElementById("keyboardLayout").addEventListener("click", (e) => {
       const key = e.target.dataset.key;
       if (!key) return;
       if (key === "erase") {
@@ -366,4 +363,5 @@
     });
   </script>
 </body>
+
 </html>

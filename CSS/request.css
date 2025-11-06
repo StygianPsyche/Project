@@ -4,6 +4,66 @@ body {
   /* Set a larger base font size for general text */
 }
 
+/* Increase textfield size */
+input.form-control,
+textarea.form-control {
+  font-size: 25px;
+  /* Increase font size */
+  padding: 12px;
+  /* Increase padding */
+  height: 50px;
+  /* Increase height for easier typing */
+  width: 100%;
+  /* Full width */
+  border-radius: 8px;
+  /* Rounded corners */
+}
+
+/* Add custom styles for the year dropdown */
+.year-list {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  z-index: 1000;
+  /* Ensure the dropdown appears above other elements */
+  position: absolute;
+}
+
+.year-item {
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.year-item:hover {
+  background-color: #f1f1f1;
+}
+
+
+/* Ensure that the label and input are aligned vertically */
+.mb-3 {
+  margin-bottom: 1rem;
+  /* space between form elements */
+}
+
+input[type="date"] {
+  width: 100%;
+  /* Make the date input take the full width of its container */
+  display: block;
+  /* Ensures the input takes up a block-level space under the label */
+}
+
+.form-label {
+  display: block;
+  /* Ensures the label takes the full width */
+  margin-bottom: 5px;
+  /* Adds a small space below the label */
+}
+
+
 .container {
   font-size: 18px;
   /* Ensure container text is large enough */
@@ -21,6 +81,7 @@ h5 {
   /* Increase padding for better touch */
 }
 
+
 .form-select option {
   font-size: 25px;
   /* Larger options in the dropdown */
@@ -31,18 +92,66 @@ h5 {
   /* Increase card text font */
 }
 
-/* Adjust text field size */
-.txtfield {
-  font-size: 5rem;
-  /* Increase text size for readability */
-  padding: 12px;
-  /* Add padding for easier typing */
-  width: 100%;
-  /* Make the text field full-width */
-  height: 60px;
-  /* Increase the height for better interaction */
-  border: 1px solid #ccc;
-  /* Add a light border */
-  border-radius: 8px;
-  /* Rounded corners */
+/* ---------------------Modal Body Styles--------------------- */
+.modal-content {
+  font-size: 18px; /* Default text size for the modal */
+  font-family: 'Arial', sans-serif; /* Use same font family as the rest of the page */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px;
+}
+
+.modal-header {
+  font-size: 20px; /* Larger font size for header */
+  font-weight: bold; /* Make the title bold */
+  font-family: 'Arial', sans-serif; /* Match font family */
+}
+
+.modal-body {
+  font-size: 18px; /* Adjust font size for body text */
+  font-family: 'Arial', sans-serif; /* Match font family */
+  padding: 15px 20px;
+  line-height: 1.6; /* Improve line spacing for readability */
+}
+
+.modal-footer {
+  font-size: 18px; /* Ensure consistent font size */
+  font-family: 'Arial', sans-serif; /* Match font family */
+  display: flex;
+  justify-content: space-between; /* Space between buttons */
+}
+
+.modal-footer .btn {
+  font-size: 18px; /* Set button font size */
+  padding: 10px 15px; /* Adjust padding */
+  border-radius: 6px; /* Rounded button corners */
+  font-family: 'Arial', sans-serif; /* Match font family */
+}
+
+/* Custom button styles */
+.modal-footer .btn-secondary {
+  background-color: #6c757d; /* Default color for "No" button */
+  border-color: #6c757d;
+}
+
+.modal-footer .btn-primary {
+  background-color: #007bff; /* Primary color for "Yes" button */
+  border-color: #007bff;
+}
+
+/* Button hover effects */
+.modal-footer .btn:hover {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+/* Ensure modal is responsive */
+@media (max-width: 768px) {
+  .modal-dialog {
+    max-width: 100%;
+    margin: 10px; /* Allow for better fit on smaller screens */
+  }
+
+  .modal-header, .modal-body, .modal-footer {
+    font-size: 16px; /* Adjust font size for smaller screens */
+  }
 }
